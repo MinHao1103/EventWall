@@ -65,7 +65,7 @@ npm run dev
 ## 專案結構
 
 ```
-WedLive/
+EventWall/
 ├── public/                  # 前端靜態檔案
 │   ├── index.html          # 姓名輸入頁
 │   ├── main.html           # 主頁面
