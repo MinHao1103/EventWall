@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>活動互動牆</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header 標題區 -->
+    <header id="header">
+        <h1 id="guestsName">嘉賓姓名</h1>
+        <p id="eventDate">2024-12-31</p>
+    </header>
+
+    <!-- Gallery 畫廊區 -->
+    <div class="carousel-container">
+        <!-- 主畫面顯示區 -->
+        <div id="gallery-main">
+            <!-- 左箭頭 -->
+            <button class="gallery-nav gallery-nav-left" onclick="previousMedia()">◀</button>
+
+            <!-- 照片/影片顯示 -->
+            <div id="gallery-display">
+                <div class="gallery-placeholder">
+                    <span class="gallery-placeholder-icon">📷</span>
+                    <p>等待照片上傳...</p>
+                </div>
+            </div>
+
+            <!-- 右箭頭 -->
+            <button class="gallery-nav gallery-nav-right" onclick="nextMedia()">▶</button>
+
+            <!-- 彈幕層 (移到 gallery-main 內部) -->
+            <div id="danmaku-container"></div>
+
+            <!-- 照片資訊 -->
+            <div class="gallery-info" id="gallery-info">
+                <span id="gallery-uploader"></span>
+                <span id="gallery-time"></span>
+                <span id="gallery-counter">0 / 0</span>
+            </div>
+        </div>
+
+        <!-- 縮圖導航列 -->
+        <div id="gallery-thumbnails">
+            <!-- 動態生成縮圖 -->
+        </div>
+
+        <!-- 彈幕輸入區 -->
+        <div class="danmaku-input">
+            <input type="text" id="danmakuText" placeholder="輸入彈幕..." maxlength="50">
+            <button class="ripple" onclick="sendDanmaku()">發送</button>
+        </div>
+
+        <!-- 右側留言板 -->
+        <div class="message-board">
+            <div class="message-board-header">
+                <h3>💬 訪客留言</h3>
+            </div>
+            <div id="messages" class="messages-container"></div>
+            <div class="message-input">
+                <input type="text" id="messageName" readonly>
+                <textarea id="messageText" placeholder="留下您的祝福..." maxlength="200"></textarea>
+                <button class="ripple" onclick="sendMessage()">送出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上傳區 -->
+    <div class="upload-section">
+        <h2>📤 上傳照片或影片</h2>
+        <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="handleFileUpload(event)">
+        <div id="dropZone" class="drop-zone">
+            <div class="drop-zone-content">
+                <span class="upload-icon">☁️</span>
+                <p>點擊或拖曳檔案到此處上傳</p>
+                <small>支援 JPG, PNG, GIF, MP4, MOV, AVI（最大100MB）</small>
+            </div>
+        </div>
+        <div id="uploadProgress" class="upload-progress"></div>
+    </div>
+
+    <!-- Footer 統計區 -->
+    <footer id="footer">
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-icon">📷</span>
+                <span class="stat-label">照片</span>
+                <span class="stat-value" id="photoCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🎬</span>
+                <span class="stat-label">影片</span>
+                <span class="stat-value" id="videoCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">💬</span>
+                <span class="stat-label">留言</span>
+                <span class="stat-value" id="messageCount">0</span>
+            </div>
+        </div>
+        <button class="export-btn ripple" onclick="exportData()">📥 匯出資料</button>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">載入中...</div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <div class="status-dot"></div>
+        <span id="connectionText">已連線</span>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

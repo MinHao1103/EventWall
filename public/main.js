@@ -1,0 +1,804 @@
+/**
+ * 活動互動牆 - 前端 JavaScript
+ * 功能：彈幕、留言板、檔案上傳、輪播、即時更新
+ */
+
+// ============================================
+// 全域變數
+// ============================================
+let ws = null;
+let userName = '';
+let mediaList = [];
+let currentIndex = 0;
+
+// ============================================
+// 用戶體驗優化 - 工具函數
+// ============================================
+
+/**
+ * 顯示載入動畫
+ * @param {string} text - 載入文字
+ */
+function showLoading(text = '載入中...') {
+    const overlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    if (loadingText) loadingText.textContent = text;
+    if (overlay) overlay.classList.add('active');
+}
+
+/**
+ * 隱藏載入動畫
+ */
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+/**
+ * 顯示 Toast 通知
+ * @param {string} title - 標題
+ * @param {string} message - 訊息內容
+ * @param {string} type - 類型: success, error, info, warning
+ * @param {number} duration - 顯示時間（毫秒）
+ */
+function showToast(title, message = '', type = 'info', duration = 3000) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icons = {
+        success: '✓',
+        error: '✗',
+        info: 'ℹ',
+        warning: '⚠'
+    };
+
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            ${message ? `<div class="toast-message">${message}</div>` : ''}
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    container.appendChild(toast);
+
+    // 自動移除
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+/**
+ * 更新連線狀態顯示
+ * @param {string} status - connected, disconnected, connecting
+ * @param {string} text - 狀態文字
+ */
+function updateConnectionStatus(status, text) {
+    const statusEl = document.getElementById('connectionStatus');
+    const textEl = document.getElementById('connectionText');
+
+    if (!statusEl || !textEl) return;
+
+    statusEl.classList.remove('disconnected', 'connecting');
+
+    if (status === 'connected') {
+        statusEl.classList.remove('show');
+        textEl.textContent = text || '已連線';
+    } else if (status === 'disconnected') {
+        statusEl.classList.add('show', 'disconnected');
+        textEl.textContent = text || '連線已中斷';
+    } else if (status === 'connecting') {
+        statusEl.classList.add('show', 'connecting');
+        textEl.textContent = text || '重新連線中...';
+    }
+}
+
+/**
+ * 防抖函數
+ * @param {Function} func - 要執行的函數
+ * @param {number} wait - 等待時間（毫秒）
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// ============================================
+// 初始化
+// ============================================
+window.addEventListener('DOMContentLoaded', () => {
+    // 取得用戶姓名
+    userName = localStorage.getItem('userName');
+    if (!userName) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // 設定留言板的姓名欄位
+    document.getElementById('messageName').value = userName;
+
+    // 初始化 WebSocket
+    initWebSocket();
+
+    // 載入網站設定
+    loadSiteConfig();
+
+    // 載入媒體檔案
+    loadMedia();
+
+    // 載入留言
+    loadMessages();
+
+    // 載入統計資料
+    loadStatistics();
+
+    // 設定拖放上傳
+    setupDragDrop();
+
+    // 彈幕輸入框 Enter 鍵送出
+    document.getElementById('danmakuText').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendDanmaku();
+        }
+    });
+
+    // 留言輸入框 Ctrl+Enter 送出
+    document.getElementById('messageText').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            sendMessage();
+        }
+    });
+});
+
+// ============================================
+// WebSocket 連線
+// ============================================
+function initWebSocket() {
+    updateConnectionStatus('connecting', '連線中...');
+
+    ws = new WebSocket('ws://localhost:8080');
+
+    ws.onopen = () => {
+        console.log('WebSocket 連線成功');
+        updateConnectionStatus('connected');
+        showToast('連線成功', '即時功能已啟用', 'success', 2000);
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            handleWebSocketMessage(data);
+        } catch (error) {
+            console.error('處理 WebSocket 訊息失敗:', error);
+        }
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket 錯誤:', error);
+        updateConnectionStatus('disconnected', '連線錯誤');
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket 連線關閉，5秒後重新連線...');
+        updateConnectionStatus('disconnected', '連線已中斷');
+        setTimeout(() => {
+            updateConnectionStatus('connecting', '重新連線中...');
+            initWebSocket();
+        }, 5000);
+    };
+}
+
+function handleWebSocketMessage(data) {
+    switch (data.type) {
+        case 'initMedia':
+            mediaList = data.data || [];
+            renderGallery();
+            break;
+        case 'newMedia':
+            mediaList.push(data.data);
+            renderGallery();
+            loadStatistics();
+            break;
+        case 'newMessage':
+            addMessageToBoard(data.data);
+            loadStatistics();
+            break;
+        case 'newDanmaku':
+            showDanmaku(data.data);
+            break;
+    }
+}
+
+// ============================================
+// 網站設定
+// ============================================
+async function loadSiteConfig() {
+    try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+
+        if (config) {
+            document.getElementById('guestsName').textContent = config.guests_name || '嘉賓姓名';
+            document.getElementById('eventDate').textContent = config.event_date || '2024-12-31';
+        }
+    } catch (error) {
+        console.error('載入網站設定失敗:', error);
+    }
+}
+
+// ============================================
+// 畫廊展示
+// ============================================
+async function loadMedia() {
+    try {
+        const response = await fetch('/api/media');
+        mediaList = await response.json();
+        renderGallery();
+    } catch (error) {
+        console.error('載入媒體失敗:', error);
+    }
+}
+
+// 渲染畫廊
+function renderGallery() {
+    if (mediaList.length === 0) {
+        return; // 保持預設的 placeholder
+    }
+
+    // 顯示當前照片
+    showMediaAt(currentIndex);
+
+    // 渲染縮圖
+    renderThumbnails();
+}
+
+// 顯示指定索引的媒體
+function showMediaAt(index) {
+    if (index < 0 || index >= mediaList.length) return;
+
+    currentIndex = index;
+    const media = mediaList[index];
+    const display = document.getElementById('gallery-display');
+
+    display.innerHTML = '';
+
+    if (media.media_type === 'photo') {
+        const img = document.createElement('img');
+        img.src = media.file_url;
+        img.alt = media.original_name;
+        display.appendChild(img);
+    } else if (media.media_type === 'video') {
+        const video = document.createElement('video');
+        video.src = media.file_url;
+        video.controls = true;
+        video.autoplay = false;
+        display.appendChild(video);
+    }
+
+    // 更新資訊
+    const galleryInfo = document.getElementById('gallery-info');
+    document.getElementById('gallery-uploader').textContent = `上傳者：${media.uploader}`;
+    document.getElementById('gallery-time').textContent = new Date(media.upload_time).toLocaleString('zh-TW');
+    document.getElementById('gallery-counter').textContent = `${index + 1} / ${mediaList.length}`;
+    galleryInfo.classList.add('show');
+
+    // 更新縮圖選中狀態
+    updateThumbnailActive();
+}
+
+// 渲染縮圖列表
+function renderThumbnails() {
+    const container = document.getElementById('gallery-thumbnails');
+    container.innerHTML = '';
+
+    mediaList.forEach((media, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumbnail-item scale-in';
+        if (index === currentIndex) {
+            thumb.classList.add('active');
+        }
+
+        if (media.media_type === 'photo') {
+            const img = document.createElement('img');
+            img.src = media.file_url;
+            thumb.appendChild(img);
+        } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'thumbnail-placeholder';
+            placeholder.textContent = '🎬';
+            thumb.appendChild(placeholder);
+        }
+
+        thumb.onclick = () => showMediaAt(index);
+        container.appendChild(thumb);
+
+        // 動畫結束後移除動畫類
+        thumb.addEventListener('animationend', () => {
+            thumb.classList.remove('scale-in');
+        }, { once: true });
+    });
+}
+
+// 更新縮圖選中狀態
+function updateThumbnailActive() {
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    thumbnails.forEach((thumb, index) => {
+        if (index === currentIndex) {
+            thumb.classList.add('active');
+            // 滾動到可見區域
+            thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+            thumb.classList.remove('active');
+        }
+    });
+}
+
+// 上一張
+function previousMedia() {
+    if (mediaList.length === 0) return;
+    if (currentIndex > 0) {
+        showMediaAt(currentIndex - 1);
+    } else {
+        showMediaAt(mediaList.length - 1); // 循環到最後一張
+    }
+}
+
+// 下一張
+function nextMedia() {
+    if (mediaList.length === 0) return;
+    if (currentIndex < mediaList.length - 1) {
+        showMediaAt(currentIndex + 1);
+    } else {
+        showMediaAt(0); // 循環到第一張
+    }
+}
+
+// 鍵盤控制
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+        previousMedia();
+    } else if (e.key === 'ArrowRight') {
+        nextMedia();
+    }
+});
+
+// 觸控手勢支援（手機滑動）
+let touchStartX = 0;
+let touchEndX = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+let touchStartTime = 0;
+
+window.addEventListener('DOMContentLoaded', () => {
+    const galleryMain = document.getElementById('gallery-main');
+
+    if (galleryMain) {
+        galleryMain.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+
+        galleryMain.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+    }
+
+    // 防止雙擊縮放（僅針對畫廊區域）
+    if (galleryMain) {
+        let lastTouchEnd = 0;
+        galleryMain.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+
+    // 為所有按鈕添加觸控回饋
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.95)';
+        }, { passive: true });
+
+        button.addEventListener('touchend', function() {
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 100);
+        }, { passive: true });
+    });
+});
+
+function handleSwipe() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // 只有水平滑動距離大於垂直滑動距離才觸發切換
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+        if (deltaX < -50) {
+            nextMedia(); // 向左滑，下一張
+        } else if (deltaX > 50) {
+            previousMedia(); // 向右滑，上一張
+        }
+    }
+}
+
+// ============================================
+// 彈幕功能
+// ============================================
+function sendDanmaku() {
+    const input = document.getElementById('danmakuText');
+    const text = input.value.trim();
+
+    if (!text) {
+        showToast('提示', '請輸入彈幕內容', 'warning', 2000);
+        input.focus();
+        return;
+    }
+
+    if (text.length > 50) {
+        showToast('提示', '彈幕內容不能超過 50 個字', 'warning', 2000);
+        return;
+    }
+
+    const danmakuData = {
+        userName: userName,
+        danmakuText: text,
+        color: getRandomColor(),
+        position: Math.random() * 80 + 10 // 10-90%
+    };
+
+    // 發送到伺服器
+    fetch('/api/danmaku', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(danmakuData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('發送失敗');
+        return response.json();
+    })
+    .then(() => {
+        input.value = '';
+        showToast('發送成功', '彈幕已送出', 'success', 1500);
+    })
+    .catch(error => {
+        console.error('發送彈幕失敗:', error);
+        showToast('發送失敗', '請稍後再試', 'error', 3000);
+    });
+}
+
+function showDanmaku(data) {
+    const container = document.getElementById('danmaku-container');
+    const danmaku = document.createElement('div');
+
+    danmaku.className = 'danmaku-item';
+    danmaku.textContent = data.danmakuText;
+    danmaku.style.color = data.color || '#FFFFFF';
+    danmaku.style.top = `${data.position || 50}%`;
+
+    container.appendChild(danmaku);
+
+    // Debug 輸出
+    console.log('彈幕已顯示:', {
+        text: data.danmakuText,
+        color: data.color,
+        position: data.position,
+        containerHeight: container.offsetHeight,
+        containerWidth: container.offsetWidth,
+        containerTop: container.offsetTop,
+        zIndex: window.getComputedStyle(container).zIndex
+    });
+
+    // 8秒後移除
+    setTimeout(() => {
+        danmaku.remove();
+    }, 8000);
+}
+
+// 測試彈幕功能（可在控制台呼叫）
+window.testDanmaku = function() {
+    console.log('測試彈幕...');
+    showDanmaku({
+        danmakuText: '測試彈幕 ' + Date.now(),
+        color: '#FF6B6B',
+        position: 30
+    });
+    showDanmaku({
+        danmakuText: '第二條測試 ' + Date.now(),
+        color: '#4ECDC4',
+        position: 50
+    });
+    showDanmaku({
+        danmakuText: '第三條測試 ' + Date.now(),
+        color: '#FFA07A',
+        position: 70
+    });
+    console.log('已發送 3 條測試彈幕');
+};
+
+function getRandomColor() {
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+        '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
+        '#F8B739', '#52B788', '#FF99C9', '#A8E6CF'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// ============================================
+// 留言板功能
+// ============================================
+async function loadMessages() {
+    try {
+        const response = await fetch('/api/messages');
+        const messages = await response.json();
+
+        const container = document.getElementById('messages');
+        container.innerHTML = '';
+
+        messages.forEach(msg => {
+            addMessageToBoard(msg);
+        });
+
+        // 捲動到最新留言
+        container.scrollTop = 0;
+    } catch (error) {
+        console.error('載入留言失敗:', error);
+    }
+}
+
+function sendMessage() {
+    const input = document.getElementById('messageText');
+    const text = input.value.trim();
+
+    if (!text) {
+        showToast('提示', '請輸入留言內容', 'warning', 2000);
+        input.focus();
+        return;
+    }
+
+    if (text.length > 200) {
+        showToast('提示', '留言內容不能超過 200 個字', 'warning', 2000);
+        return;
+    }
+
+    const messageData = {
+        userName: userName,
+        messageText: text
+    };
+
+    // 防止重複提交
+    const button = event.target || document.querySelector('.message-input button');
+    if (button) button.disabled = true;
+
+    fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(messageData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('發送失敗');
+        return response.json();
+    })
+    .then(() => {
+        input.value = '';
+        showToast('留言成功', '您的祝福已送出', 'success', 2000);
+    })
+    .catch(error => {
+        console.error('發送留言失敗:', error);
+        showToast('發送失敗', '請稍後再試', 'error', 3000);
+    })
+    .finally(() => {
+        if (button) button.disabled = false;
+    });
+}
+
+function addMessageToBoard(message) {
+    const container = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message-item slide-in-left';
+
+    const userName = document.createElement('strong');
+    userName.textContent = message.user_name || message.userName;
+
+    const text = document.createElement('p');
+    text.textContent = message.message_text || message.messageText;
+
+    const time = document.createElement('small');
+    const timeStr = message.created_at ? new Date(message.created_at).toLocaleString('zh-TW') : '剛剛';
+    time.textContent = timeStr;
+
+    messageDiv.appendChild(userName);
+    messageDiv.appendChild(text);
+    messageDiv.appendChild(time);
+
+    // 插入到最前面，帶動畫效果
+    container.insertBefore(messageDiv, container.firstChild);
+
+    // 動畫結束後移除動畫類
+    messageDiv.addEventListener('animationend', () => {
+        messageDiv.classList.remove('slide-in-left');
+    }, { once: true });
+}
+
+// ============================================
+// 檔案上傳功能
+// ============================================
+function setupDragDrop() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    // 點擊上傳
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // 拖放上傳
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            uploadFile(files[0]);
+        }
+    });
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        uploadFile(file);
+    }
+}
+
+async function uploadFile(file) {
+    // 驗證檔案大小 (100MB)
+    if (file.size > 100 * 1024 * 1024) {
+        showToast('檔案過大', '檔案大小不能超過 100MB', 'error', 3000);
+        return;
+    }
+
+    // 驗證檔案類型
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime', 'video/x-msvideo'];
+    if (!allowedTypes.includes(file.type)) {
+        showToast('不支援的格式', '僅支援 JPG, PNG, GIF, MP4, MOV, AVI', 'error', 3000);
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('uploader', userName);
+
+    // 顯示上傳進度
+    const progressContainer = document.getElementById('uploadProgress');
+    progressContainer.innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+    `;
+
+    try {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = percent + '%';
+                    progressFill.textContent = percent + '%';
+                }
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                setTimeout(() => {
+                    progressContainer.innerHTML = '<p style="color: #52B788; font-weight: bold;">✓ 上傳成功！</p>';
+                    showToast('上傳成功', file.type.startsWith('image/') ? '照片已上傳' : '影片已上傳', 'success', 2000);
+                    setTimeout(() => {
+                        progressContainer.innerHTML = '';
+                    }, 2000);
+                }, 500);
+            } else {
+                progressContainer.innerHTML = '<p style="color: #e74c3c;">✗ 上傳失敗，請重試</p>';
+                showToast('上傳失敗', '請檢查網絡連線後重試', 'error', 3000);
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            progressContainer.innerHTML = '<p style="color: #e74c3c;">✗ 上傳失敗，請重試</p>';
+            showToast('上傳失敗', '網絡連線錯誤', 'error', 3000);
+        });
+
+        xhr.open('POST', '/api/upload');
+        xhr.send(formData);
+
+    } catch (error) {
+        console.error('上傳失敗:', error);
+        progressContainer.innerHTML = '<p style="color: #e74c3c;">✗ 上傳失敗，請重試</p>';
+    }
+}
+
+// ============================================
+// 統計資料
+// ============================================
+async function loadStatistics() {
+    try {
+        const response = await fetch('/api/statistics');
+        const stats = await response.json();
+
+        document.getElementById('photoCount').textContent = stats.photoCount || 0;
+        document.getElementById('videoCount').textContent = stats.videoCount || 0;
+        document.getElementById('messageCount').textContent = stats.messageCount || 0;
+    } catch (error) {
+        console.error('載入統計失敗:', error);
+    }
+}
+
+// ============================================
+// 匯出資料
+// ============================================
+async function exportData() {
+    try {
+        // 取得所有資料
+        const [mediaRes, messagesRes, statsRes] = await Promise.all([
+            fetch('/api/media'),
+            fetch('/api/messages'),
+            fetch('/api/statistics')
+        ]);
+
+        const media = await mediaRes.json();
+        const messages = await messagesRes.json();
+        const stats = await statsRes.json();
+
+        const exportData = {
+            exportTime: new Date().toISOString(),
+            statistics: stats,
+            media: media,
+            messages: messages
+        };
+
+        // 產生 JSON 檔案
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `event-data-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert('資料匯出成功！');
+    } catch (error) {
+        console.error('匯出資料失敗:', error);
+        alert('匯出資料失敗，請稍後再試');
+    }
+}

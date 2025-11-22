@@ -1,0 +1,1121 @@
+/* 活動互動牆 - 樣式表 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, 'Microsoft JhengHei', sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header 標題區 */
+#header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+#header p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* 畫廊區 Gallery */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+}
+
+/* 畫廊主顯示區 */
+#gallery-main {
+    width: 100%;
+    height: 500px;
+    position: relative;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+}
+
+#gallery-display {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gallery-display img,
+#gallery-display video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.gallery-placeholder {
+    text-align: center;
+    color: #999;
+}
+
+.gallery-placeholder-icon {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.gallery-placeholder p {
+    color: #ccc;
+    font-size: 18px;
+}
+
+/* 導航箭頭 */
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    font-size: 32px;
+    padding: 20px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+.gallery-nav:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.gallery-nav-left {
+    left: 10px;
+}
+
+.gallery-nav-right {
+    right: 10px;
+}
+
+/* 照片資訊 */
+.gallery-info {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: none;
+    gap: 15px;
+    z-index: 10;
+}
+
+.gallery-info.show {
+    display: flex;
+}
+
+/* 縮圖導航列 */
+#gallery-thumbnails {
+    width: 100%;
+    height: 100px;
+    background: #f5f5f5;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#gallery-thumbnails::-webkit-scrollbar {
+    height: 6px;
+}
+
+#gallery-thumbnails::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+.thumbnail-item {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: all 0.3s;
+    background: #ddd;
+}
+
+.thumbnail-item:hover {
+    transform: scale(1.1);
+    border-color: #764ba2;
+}
+
+.thumbnail-item.active {
+    border-color: #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnail-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* 彈幕層 */
+#danmaku-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 15;
+}
+
+.danmaku-item {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: danmaku-slide 8s linear forwards;
+    z-index: 11;
+}
+
+@keyframes danmaku-slide {
+    from {
+        transform: translateX(100vw);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+/* 彈幕輸入區 */
+.danmaku-input {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.danmaku-input input {
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
+    width: 250px;
+}
+
+.danmaku-input input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.danmaku-input button {
+    padding: 10px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.danmaku-input button:hover {
+    transform: scale(1.05);
+}
+
+/* 留言板 */
+.message-board {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 320px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 15;
+}
+
+.message-board-header {
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+}
+
+.message-board-header h3 {
+    font-size: 18px;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.message-item {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border-left: 3px solid #667eea;
+}
+
+.message-item strong {
+    color: #764ba2;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.message-item p {
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 5px;
+}
+
+.message-item small {
+    color: #999;
+    font-size: 11px;
+}
+
+.message-input {
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+    background: white;
+}
+
+.message-input input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.message-input textarea {
+    width: 100%;
+    height: 70px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.message-input input:focus,
+.message-input textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.message-input button {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.message-input button:hover {
+    transform: scale(1.02);
+}
+
+/* 上傳區 */
+.upload-section {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.upload-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.drop-zone {
+    border: 3px dashed #ccc;
+    border-radius: 10px;
+    padding: 60px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.drop-zone:hover {
+    border-color: #667eea;
+    background: #f9f9ff;
+}
+
+.drop-zone.dragover {
+    border-color: #764ba2;
+    background: #f0f0ff;
+}
+
+.drop-zone-content {
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 60px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.drop-zone p {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.drop-zone small {
+    color: #999;
+    font-size: 14px;
+}
+
+.upload-progress {
+    margin-top: 20px;
+    min-height: 30px;
+}
+
+.progress-bar {
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 30px;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Footer 統計區 */
+#footer {
+    background: #333;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+    margin-top: auto;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-icon {
+    font-size: 30px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.export-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.export-btn:hover {
+    transform: scale(1.05);
+}
+
+/* iOS Safe Area 支援 */
+body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+#header {
+    padding-top: calc(30px + env(safe-area-inset-top));
+}
+
+#footer {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+}
+
+/* 響應式設計 - 平板 */
+@media (max-width: 1024px) {
+    .carousel-container {
+        max-width: 100%;
+        margin: 20px 10px;
+    }
+
+    .message-board {
+        width: 280px;
+    }
+}
+
+/* 響應式設計 - 手機橫屏 */
+@media (max-width: 896px) and (orientation: landscape) {
+    #gallery-main {
+        height: 70vh;
+    }
+
+    .message-board {
+        width: 250px;
+    }
+
+    #gallery-thumbnails {
+        height: 80px;
+    }
+
+    .thumbnail-item {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* 響應式設計 - 手機直屏 (所有 iPhone) */
+@media (max-width: 768px) {
+    /* 容器調整 */
+    .carousel-container {
+        margin: 10px 0;
+        border-radius: 0;
+        max-width: 100%;
+        position: relative; /* 確保絕對定位的子元素正確定位 */
+    }
+
+    /* 畫廊主顯示區 */
+    #gallery-main {
+        height: 50vh;
+        min-height: 300px;
+        border-radius: 0;
+        position: relative; /* 為彈幕提供定位參考 */
+        z-index: 1;
+    }
+
+    /* 導航箭頭 */
+    .gallery-nav {
+        font-size: 24px;
+        padding: 15px 10px;
+    }
+
+    .gallery-nav-left {
+        left: 5px;
+    }
+
+    .gallery-nav-right {
+        right: 5px;
+    }
+
+    /* 照片資訊 */
+    .gallery-info {
+        font-size: 12px;
+        padding: 6px 12px;
+        gap: 10px;
+        max-width: 90%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* 縮圖列表 */
+    #gallery-thumbnails {
+        height: 80px;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .thumbnail-item {
+        width: 70px;
+        height: 70px;
+    }
+
+    /* 留言板改為下方區塊 */
+    .message-board {
+        position: relative;
+        width: 100%;
+        right: auto;
+        top: auto;
+        max-height: none;
+        height: auto;
+        box-shadow: none;
+        border-top: 2px solid #667eea;
+    }
+
+    .messages-container {
+        max-height: 250px;
+    }
+
+    /* 彈幕輸入框移到縮圖下方 */
+    .danmaku-input {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        width: 100%;
+        border-radius: 0;
+        padding: 12px;
+        justify-content: center;
+    }
+
+    .danmaku-input input {
+        width: 60%;
+        max-width: 250px;
+    }
+
+    /* 彈幕容器調整 - 繼承 gallery-main 的高度 */
+    #danmaku-container {
+        /* 移除高度設定，自動繼承 gallery-main 的 100% 高度 */
+        z-index: 20; /* 確保在所有元素上方 */
+    }
+
+    /* 彈幕文字在手機上稍大一些 */
+    .danmaku-item {
+        font-size: 18px;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Header 調整 */
+    #header h1 {
+        font-size: 24px;
+    }
+
+    #header p {
+        font-size: 16px;
+    }
+
+    /* 上傳區調整 */
+    .upload-section {
+        margin: 20px 10px;
+        padding: 15px;
+    }
+
+    .drop-zone {
+        padding: 40px 15px;
+    }
+
+    /* Footer 統計區 */
+    .stats {
+        gap: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .stat-icon {
+        font-size: 24px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+}
+
+/* iPhone SE / 小尺寸手機 (375px 以下) */
+@media (max-width: 375px) {
+    #gallery-main {
+        height: 45vh;
+        min-height: 250px;
+    }
+
+    #danmaku-container {
+        /* 自動繼承 gallery-main 的高度 */
+        z-index: 20;
+    }
+
+    .danmaku-item {
+        font-size: 16px;
+    }
+
+    .gallery-info {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    #gallery-thumbnails {
+        height: 70px;
+    }
+
+    .thumbnail-item {
+        width: 60px;
+        height: 60px;
+    }
+
+    .danmaku-input input {
+        width: 50%;
+        font-size: 13px;
+    }
+
+    .danmaku-input button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    #header h1 {
+        font-size: 20px;
+    }
+
+    #header p {
+        font-size: 14px;
+    }
+}
+
+/* iPhone Pro Max / 大尺寸手機 (428px 以上) */
+@media (min-width: 428px) and (max-width: 768px) {
+    #gallery-main {
+        height: 55vh;
+    }
+
+    #danmaku-container {
+        /* 自動繼承 gallery-main 的高度 */
+        z-index: 20;
+    }
+
+    .danmaku-item {
+        font-size: 19px;
+    }
+
+    #gallery-thumbnails {
+        height: 90px;
+    }
+
+    .thumbnail-item {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* 觸控優化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大點擊區域 */
+    .gallery-nav {
+        padding: 25px 20px;
+        font-size: 28px;
+    }
+
+    .thumbnail-item {
+        border-width: 2px;
+    }
+
+    .thumbnail-item:active {
+        transform: scale(0.95);
+    }
+
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* ============================================
+   用戶體驗優化 - 載入指示器和提示系統
+   ============================================ */
+
+/* Loading Spinner */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    position: absolute;
+    color: white;
+    margin-top: 80px;
+    font-size: 14px;
+}
+
+/* Toast 通知系統 */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    pointer-events: auto;
+    animation: slideInRight 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.removing {
+    animation: slideOutRight 0.3s ease-out forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.toast-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: #666;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: #333;
+}
+
+.toast.success {
+    border-left: 4px solid #52B788;
+}
+
+.toast.error {
+    border-left: 4px solid #e74c3c;
+}
+
+.toast.info {
+    border-left: 4px solid #667eea;
+}
+
+.toast.warning {
+    border-left: 4px solid #FFA07A;
+}
+
+/* 連線狀態指示器 */
+.connection-status {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.connection-status.show {
+    display: flex;
+}
+
+.connection-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #52B788;
+    animation: pulse 2s infinite;
+}
+
+.connection-status.disconnected .status-dot {
+    background: #e74c3c;
+    animation: none;
+}
+
+.connection-status.connecting .status-dot {
+    background: #FFA07A;
+    animation: blink 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* 按鈕點擊效果增強 */
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 輸入框焦點效果 */
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 平滑滾動 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 元素進入動畫 */
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.4s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.scale-in {
+    animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 按鈕波紋效果 */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* 提升懸停效果 */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 手機版 Toast 調整 */
+@media (max-width: 768px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .toast {
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    .connection-status {
+        bottom: 10px;
+        left: 10px;
+        font-size: 11px;
+    }
+}

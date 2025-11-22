@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# 上傳檔案
+uploads/
+
+# 環境變數
+.env
+
+# 日誌檔案
+*.log
+npm-debug.log*
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 設定
+.vscode/
+.idea/
+
+# 臨時檔案
+*.tmp
+*.swp
+NUL
