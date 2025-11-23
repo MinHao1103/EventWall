@@ -57,6 +57,15 @@ npm run dev
 
 #### 5. 訪問：`http://localhost:5001`
 
+### 服務器端口
+
+啟動後，系統將使用以下端口：
+
+- **HTTP Server**: `http://localhost:5001` - 網站主要訪問端口
+- **WebSocket**: `ws://localhost:8080` - 即時通訊端口（自動連線）
+
+> 注意：請確保這兩個端口未被其他程式佔用。如需修改端口，請編輯 `server.js` 中的 `port` 變數（HTTP）和 WebSocket.Server 配置（WebSocket）。
+
 #### 6. （可選）啟用 Google Drive 雲端備份
 
 如果想要自動備份照片/影片到 Google Drive：

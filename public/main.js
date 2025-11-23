@@ -207,13 +207,40 @@ function handleWebSocketMessage(data) {
             renderGallery();
             break;
         case 'newMedia':
-            mediaList.push(data.data);
+            // 將新媒體插入到陣列開頭（與資料庫 DESC 排序一致）
+            mediaList.unshift(data.data);
+
+            // 如果用戶正在查看某個媒體，調整索引以保持查看的內容不變
+            if (currentIndex >= 0) {
+                currentIndex++;
+            }
+
+            // 重新渲染畫廊
             renderGallery();
             loadStatistics();
+
+            // 顯示新上傳提示，並提供跳轉按鈕
+            const mediaType = data.data.media_type === 'photo' ? '照片' : '影片';
+            const uploader = data.data.uploader;
+
+            // 如果是自己上傳的，自動跳轉到新內容
+            if (uploader === userName) {
+                currentIndex = 0; // 跳到最新的（陣列開頭）
+                showMediaAt(currentIndex);
+                showToast('上傳成功', `您的${mediaType}已上傳`, 'success', 3000);
+            } else {
+                showToast('新內容', `${uploader} 上傳了新${mediaType}`, 'info', 3000);
+            }
             break;
         case 'newMessage':
             addMessageToBoard(data.data);
             loadStatistics();
+
+            // 如果不是自己的留言，顯示提示
+            const messageSender = data.data.user_name || data.data.userName;
+            if (messageSender !== userName) {
+                showToast('新留言', `${messageSender} 留言了`, 'info', 2000);
+            }
             break;
         case 'newDanmaku':
             showDanmaku(data.data);
@@ -312,7 +339,8 @@ function renderThumbnails() {
 
         if (media.media_type === 'photo') {
             const img = document.createElement('img');
-            img.src = media.file_url;
+            // 優先使用縮圖，如果不存在則使用原圖
+            img.src = media.thumbnail_url || media.file_url;
             thumb.appendChild(img);
         } else {
             const placeholder = document.createElement('div');

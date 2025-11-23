@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS media_files (
     file_size BIGINT NOT NULL,
     file_path VARCHAR(500) NOT NULL,
     file_url VARCHAR(500) NOT NULL,
+    thumbnail_url VARCHAR(500) DEFAULT NULL COMMENT '縮圖 URL',
     media_type ENUM('photo', 'video') NOT NULL,
     upload_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

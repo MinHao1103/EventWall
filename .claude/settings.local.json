@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(NUL)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: 活動互動牆\n\n- 重構專案從婚禮互動網站改為通用的活動互動牆\n- 支援照片/影片上傳、彈幕、留言板等功能\n- 適用於婚禮、派對、企業活動等各種場合\n- 資料庫名稱: event_wall\n- 使用 Express + MySQL + WebSocket 架構\n\nGenerated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git reset:*)",
+      "Bash(cat:*)",
+      "Bash(nul)",
+      "Bash(dir:*)",
+      "Bash(npm install:*)",
+      "Bash(if not exist \"D:\\EventWall\\uploads\\thumbnails\" mkdir \"D:\\EventWall\\uploads\\thumbnails\")",
+      "Bash(node:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell \"Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -Property LocalPort, OwningProcess\")",
+      "Bash(mysql:*)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

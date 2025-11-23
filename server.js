@@ -8,6 +8,7 @@ const multer = require('multer');
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 const db = require('./config/database');
 const googleDrive = require('./config/googleDrive');
 
@@ -43,7 +44,12 @@ const storage = multer.diskStorage({
         const uploader = req.body.uploader || 'anonymous';
         const ext = path.extname(file.originalname);
         const basename = path.basename(file.originalname, ext);
-        cb(null, `${timestamp}-${uploader}-${basename}${ext}`);
+
+        // 清理檔名：移除空格、括號等特殊字符，只保留字母數字、中文、底線和連字號
+        const cleanBasename = basename.replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+        const cleanUploader = uploader.replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+
+        cb(null, `${timestamp}-${cleanUploader}-${cleanBasename}${ext}`);
     }
 });
 
@@ -71,8 +77,31 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
 // ============================================
-// 雲端上傳輔助函數
+// 輔助函數
 // ============================================
+
+/**
+ * 為圖片生成縮略圖
+ */
+async function generateThumbnail(imagePath, filename) {
+    try {
+        const thumbnailFilename = `thumb_${filename}`;
+        const thumbnailPath = path.join(UPLOAD_DIRS.thumbnails, thumbnailFilename);
+
+        await sharp(imagePath)
+            .resize(300, 300, {
+                fit: 'cover',
+                position: 'center'
+            })
+            .jpeg({ quality: 80 })
+            .toFile(thumbnailPath);
+
+        return `/uploads/thumbnails/${thumbnailFilename}`;
+    } catch (error) {
+        console.error('生成縮略圖失敗:', error);
+        return null;
+    }
+}
 
 /**
  * 異步上傳檔案到 Google Drive 並更新資料庫
@@ -118,15 +147,25 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: '沒有檔案上傳' });
         }
 
+        const isImage = req.file.mimetype.startsWith('image/');
+        const mediaType = isImage ? 'photo' : 'video';
+
+        // 為圖片生成縮略圖
+        let thumbnailUrl = null;
+        if (isImage) {
+            thumbnailUrl = await generateThumbnail(req.file.path, req.file.filename);
+        }
+
         const fileData = {
             filename: req.file.filename,
-            originalName: req.file.originalname,
+            original_name: req.file.originalname,
             uploader: req.body.uploader || 'anonymous',
-            fileType: req.file.mimetype,
-            fileSize: req.file.size,
-            filePath: req.file.path,
-            fileUrl: `/uploads/${req.file.mimetype.startsWith('image/') ? 'photos' : 'videos'}/${req.file.filename}`,
-            mediaType: req.file.mimetype.startsWith('image/') ? 'photo' : 'video'
+            file_type: req.file.mimetype,
+            file_size: req.file.size,
+            file_path: req.file.path,
+            file_url: `/uploads/${isImage ? 'photos' : 'videos'}/${req.file.filename}`,
+            thumbnail_url: thumbnailUrl,
+            media_type: mediaType
         };
 
         // 插入資料庫（本地存儲）

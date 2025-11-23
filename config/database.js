@@ -57,18 +57,19 @@ async function getStatistics() {
 // 新增媒體檔案
 async function insertMediaFile(fileData) {
     const query = `
-        INSERT INTO media_files (filename, original_name, uploader, file_type, file_size, file_path, file_url, media_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO media_files (filename, original_name, uploader, file_type, file_size, file_path, file_url, thumbnail_url, media_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
         fileData.filename,
-        fileData.originalName,
+        fileData.original_name,
         fileData.uploader,
-        fileData.fileType,
-        fileData.fileSize,
-        fileData.filePath,
-        fileData.fileUrl,
-        fileData.mediaType
+        fileData.file_type,
+        fileData.file_size,
+        fileData.file_path,
+        fileData.file_url,
+        fileData.thumbnail_url || null,
+        fileData.media_type
     ];
 
     try {
