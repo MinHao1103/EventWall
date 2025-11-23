@@ -720,7 +720,7 @@ async function uploadFile(file) {
         xhr.addEventListener('load', () => {
             if (xhr.status === 200) {
                 setTimeout(() => {
-                    progressContainer.innerHTML = '<p style="color: #52B788; font-weight: bold;">✓ 上傳成功！</p>';
+                    progressContainer.innerHTML = '<p style="color: #52B788; font-weight: bold;">上傳成功！</p>';
                     showToast('上傳成功', file.type.startsWith('image/') ? '照片已上傳' : '影片已上傳', 'success', 2000);
                     setTimeout(() => {
                         progressContainer.innerHTML = '';

@@ -9,6 +9,7 @@
 - **彈幕系統** - 即時彈幕互動，隨機顏色和位置
 - **留言板** - 訪客留言祝福，即時顯示
 - **檔案上傳** - 支援拖曳上傳照片和影片
+- **雲端備份** - 自動備份到 Google Drive（可選）
 - **統計資料** - 即時顯示照片、影片、留言數量
 - **資料匯出** - 一鍵匯出所有資料為 JSON 格式
 - **即時同步** - 使用 WebSocket 實現多人即時互動
@@ -44,13 +45,7 @@ mysql -u root -ppassword < database/init.sql
 npm install
 ```
 
-#### 4. 測試資料庫連線
-
-```bash
-npm test
-```
-
-#### 5. 啟動伺服器
+#### 4. 啟動伺服器
 
 ```bash
 # 生產模式
@@ -60,33 +55,47 @@ npm start
 npm run dev
 ```
 
-#### 6. 訪問：`http://localhost:5001`
+#### 5. 訪問：`http://localhost:5001`
+
+#### 6. （可選）啟用 Google Drive 雲端備份
+
+如果想要自動備份照片/影片到 Google Drive：
+
+```bash
+# 查看詳細設定指南
+cat config/GOOGLE_DRIVE_SETUP.md
+
+# 簡要步驟：
+# 1. 建立 Google Cloud 專案並啟用 Drive API
+# 2. 建立 Service Account 並下載 JSON 金鑰
+# 3. 將金鑰重新命名為 google-credentials.json
+# 4. 放置於 config/google-credentials.json
+# 5. 重啟伺服器
+
+# 不設定也沒關係，系統會自動使用純本地存儲模式
+```
 
 ## 專案結構
 
 ```
 EventWall/
-├── public/                  # 前端靜態檔案
-│   ├── index.html          # 姓名輸入頁
-│   ├── main.html           # 主頁面
-│   ├── styles.css          # 樣式檔案
-│   └── main.js             # 前端 JavaScript
-├── uploads/                 # 上傳檔案存儲目錄
-│   ├── photos/             # 照片存放位置
-│   ├── videos/             # 影片存放位置
-│   └── thumbnails/         # 縮圖存放位置
-├── config/                  # 設定檔
-│   └── database.js         # 資料庫連線設定
-├── database/                # 資料庫相關檔案
-│   ├── init.sql            # 資料庫初始化腳本
-│   ├── setup.bat           # 自動安裝腳本
-│   └── README.md           # 資料庫使用說明
-├── test/                    # 測試檔案
-│   └── test-db.js          # 資料庫功能測試
-├── server.js               # Node.js 後端伺服器
-├── package.json            # 專案設定檔
-├── prompt.txt              # 功能需求說明
-└── README.md               # 本檔案
+├── public/                    # 前端靜態檔案
+│   ├── index.html             # 姓名輸入頁
+│   ├── main.html              # 主頁面
+│   ├── styles.css             # 樣式檔案
+│   └── main.js                # 前端 JavaScript
+├── uploads/                   # 上傳檔案存儲目錄
+│   ├── photos/                # 照片存放位置
+│   ├── videos/                # 影片存放位置
+│   └── thumbnails/            # 縮圖存放位置
+├── config/                    # 設定檔
+│   ├── database.js            # 資料庫連線設定
+│   ├── googleDrive.js         # Google Drive 雲端服務（可選）
+│   └── GOOGLE_DRIVE_SETUP.md  # 雲端設定指南
+├── database/                  # 資料庫相關檔案
+│   └── init.sql               # 資料庫初始化腳本（已包含雲端欄位）
+├── server.js                  # Node.js 後端伺服器
+└── README.md                  # 本檔案
 ```
 
 ## 資料庫設定
@@ -105,8 +114,6 @@ EventWall/
 2. **messages** - 留言資料
 3. **danmaku** - 彈幕記錄
 4. **site_config** - 網站設定
-
-詳細說明請參考：[database/README.md](database/README.md)
 
 ## 設定說明
 
@@ -202,37 +209,3 @@ xcopy uploads backup\uploads /E /I
 ```bash
 mysql -u root -ppassword event_wall < backup.sql
 ```
-
-## 常見問題
-
-### Q: 無法連線到資料庫？
-
-A: 檢查以下項目：
-- MySQL 服務是否啟動
-- 帳號密碼是否正確
-- 資料庫 event_wall 是否已建立
-
-### Q: 上傳檔案失敗？
-
-A: 檢查以下項目：
-- uploads 目錄是否存在
-- 檔案大小是否超過限制
-- 檔案格式是否支援
-
-### Q: WebSocket 連線失敗？
-
-A: 檢查以下項目：
-- 8080 埠是否被佔用
-- 防火牆是否阻擋連線
-
-## 授權條款
-
-MIT License
-
-## 聯絡方式
-
-如有任何問題，請參考 `prompt.txt` 文件或建立 Issue。
-
----
-
-**祝您活動圓滿成功！**

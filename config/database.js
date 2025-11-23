@@ -26,8 +26,8 @@ const promisePool = pool.promise();
 async function testConnection() {
     try {
         const connection = await promisePool.getConnection();
-        console.log('✓ MySQL 資料庫連線成功');
-        console.log(`✓ 資料庫: ${dbConfig.database}`);
+        console.log('MySQL 資料庫連線成功');
+        console.log(`資料庫: ${dbConfig.database}`);
         connection.release();
         return true;
     } catch (error) {
@@ -150,6 +150,35 @@ async function getSiteConfig() {
     }
 }
 
+// 更新媒體檔案的雲端資訊
+async function updateMediaCloudInfo(mediaId, cloudInfo) {
+    const query = `
+        UPDATE media_files
+        SET cloud_file_id = ?,
+            cloud_url = ?,
+            cloud_view_link = ?,
+            cloud_uploaded = ?,
+            cloud_uploaded_at = NOW()
+        WHERE id = ?
+    `;
+    const values = [
+        cloudInfo.cloudFileId,
+        cloudInfo.cloudUrl,
+        cloudInfo.cloudViewLink,
+        cloudInfo.cloudUploaded ? 1 : 0,
+        mediaId
+    ];
+
+    try {
+        await promisePool.query(query, values);
+        console.log(`已更新媒體檔案 ${mediaId} 的雲端資訊`);
+        return true;
+    } catch (error) {
+        console.error('更新雲端資訊失敗:', error);
+        throw error;
+    }
+}
+
 // 匯出模組
 module.exports = {
     pool,
@@ -161,5 +190,6 @@ module.exports = {
     insertMessage,
     getAllMessages,
     insertDanmaku,
-    getSiteConfig
+    getSiteConfig,
+    updateMediaCloudInfo
 };

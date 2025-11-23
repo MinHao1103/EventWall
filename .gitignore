@@ -7,6 +7,9 @@ uploads/
 # 環境變數
 .env
 
+# Google Drive 憑證（敏感資料）
+config/google-credentials.json
+
 # 日誌檔案
 *.log
 npm-debug.log*

@@ -16,8 +16,14 @@ CREATE TABLE IF NOT EXISTS media_files (
     media_type ENUM('photo', 'video') NOT NULL,
     upload_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cloud_file_id VARCHAR(255) DEFAULT NULL COMMENT 'Google Drive 檔案 ID',
+    cloud_url VARCHAR(500) DEFAULT NULL COMMENT '雲端直接預覽連結',
+    cloud_view_link VARCHAR(500) DEFAULT NULL COMMENT 'Google Drive 查看連結',
+    cloud_uploaded BOOLEAN DEFAULT FALSE COMMENT '是否已上傳到雲端',
+    cloud_uploaded_at DATETIME DEFAULT NULL COMMENT '雲端上傳時間',
     INDEX idx_media_type (media_type),
-    INDEX idx_upload_time (upload_time)
+    INDEX idx_upload_time (upload_time),
+    INDEX idx_cloud_uploaded (cloud_uploaded)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. 留言資料表

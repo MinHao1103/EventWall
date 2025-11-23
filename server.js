@@ -9,6 +9,7 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 const db = require('./config/database');
+const googleDrive = require('./config/googleDrive');
 
 const app = express();
 const port = 5001;
@@ -70,6 +71,43 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
 // ============================================
+// 雲端上傳輔助函數
+// ============================================
+
+/**
+ * 異步上傳檔案到 Google Drive 並更新資料庫
+ */
+async function uploadToCloud(mediaId, localPath, filename, mimeType, mediaType) {
+    try {
+        console.log(`開始上傳到雲端: ${filename}`);
+
+        const cloudResult = await googleDrive.uploadFile(localPath, filename, mimeType, mediaType);
+
+        if (cloudResult.success) {
+            // 更新資料庫記錄雲端 URL
+            await db.updateMediaCloudInfo(mediaId, {
+                cloudFileId: cloudResult.fileId,
+                cloudUrl: cloudResult.directLink,
+                cloudViewLink: cloudResult.webViewLink,
+                cloudUploaded: true
+            });
+
+            // 通知所有客戶端雲端上傳完成
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        type: 'cloudUploadComplete',
+                        data: { id: mediaId, cloudUrl: cloudResult.directLink }
+                    }));
+                }
+            });
+        }
+    } catch (error) {
+        console.error(`雲端上傳失敗 (ID: ${mediaId}):`, error.message);
+    }
+}
+
+// ============================================
 // API 路由
 // ============================================
 
@@ -91,16 +129,25 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             mediaType: req.file.mimetype.startsWith('image/') ? 'photo' : 'video'
         };
 
+        // 插入資料庫（本地存儲）
         const result = await db.insertMediaFile(fileData);
 
-        // 通知所有 WebSocket 客戶端
+        // 立即回應客戶端（不等待雲端上傳）
+        res.json(result);
+
+        // 通知所有 WebSocket 客戶端（本地上傳完成）
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ type: 'newMedia', data: result }));
             }
         });
 
-        res.json(result);
+        // 異步上傳到 Google Drive（不阻塞響應）
+        if (googleDrive.isGoogleDriveEnabled()) {
+            uploadToCloud(result.id, req.file.path, req.file.filename, req.file.mimetype, fileData.mediaType)
+                .catch(err => console.error('雲端上傳背景任務失敗:', err));
+        }
+
     } catch (error) {
         console.error('上傳失敗:', error);
         res.status(500).json({ error: '上傳失敗: ' + error.message });
@@ -248,7 +295,10 @@ app.listen(port, async () => {
     // 測試資料庫連線
     await db.testConnection();
 
-    console.log(`✓ HTTP 伺服器運行於: http://localhost:${port}`);
-    console.log(`✓ WebSocket 伺服器運行於: ws://localhost:8080`);
+    // 初始化 Google Drive 雲端存儲
+    await googleDrive.initialize();
+
+    console.log(`HTTP 伺服器運行於: http://localhost:${port}`);
+    console.log(`WebSocket 伺服器運行於: ws://localhost:8080`);
     console.log('============================================');
 });
