@@ -360,10 +360,19 @@ function renderThumbnails() {
             img.src = media.thumbnail_url || media.file_url;
             thumb.appendChild(img);
         } else {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'thumbnail-placeholder';
-            placeholder.textContent = '🎬';
-            thumb.appendChild(placeholder);
+            // 影片：使用 video 標籤顯示第一幀作為縮圖
+            const video = document.createElement('video');
+            video.src = media.file_url;
+            video.preload = 'metadata'; // 只加載元數據和第一幀
+            video.muted = true; // 靜音
+            video.playsInline = true; // iOS 支援
+
+            // 加載完元數據後，跳到 0.1 秒處以顯示第一幀
+            video.addEventListener('loadedmetadata', () => {
+                video.currentTime = 0.1;
+            });
+
+            thumb.appendChild(video);
         }
 
         thumb.onclick = () => showMediaAt(index);
