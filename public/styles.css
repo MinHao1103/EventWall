@@ -55,7 +55,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 10px 10px 0 0;
-    overflow: hidden;
+    overflow: visible; /* 讓彈幕可以飛出 */
 }
 
 #gallery-display {
@@ -64,6 +64,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden; /* 圖片裁切在這層 */
+    border-radius: 10px 10px 0 0;
 }
 
 #gallery-display img,
@@ -216,8 +218,8 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    overflow: hidden;
-    z-index: 15;
+    overflow: visible; /* 必須讓彈幕飛出 */
+    z-index: 50; /* 提高層級，確保在導航按鈕之上 */
 }
 
 .danmaku-item {
@@ -226,17 +228,10 @@ body {
     font-weight: bold;
     font-size: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: danmaku-slide 8s linear forwards;
     z-index: 11;
-}
-
-@keyframes danmaku-slide {
-    from {
-        transform: translateX(100vw);
-    }
-    to {
-        transform: translateX(-100%);
-    }
+    /* 使用 JavaScript transition 代替 CSS animation */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 /* 彈幕輸入區 */

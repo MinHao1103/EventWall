@@ -168,7 +168,24 @@ window.addEventListener('DOMContentLoaded', () => {
 function initWebSocket() {
     updateConnectionStatus('connecting', '連線中...');
 
-    ws = new WebSocket('ws://localhost:8080');
+    // 自動偵測 WebSocket URL (支援 ngrok、本地和外網環境)
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const hostname = window.location.hostname;
+
+    // 使用相同的 host 和 port，與 HTTP 服務器相同
+    // 如果 window.location.port 為空（標準端口），則不添加端口號
+    let wsUrl;
+    if (window.location.port) {
+        wsUrl = `${protocol}//${hostname}:${window.location.port}`;
+    } else {
+        // HTTPS 使用 443，HTTP 使用 80（標準端口）
+        wsUrl = `${protocol}//${hostname}`;
+    }
+
+    console.log('🌐 當前環境:', hostname);
+    console.log('🔌 WebSocket URL:', wsUrl);
+
+    ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
         console.log('WebSocket 連線成功');
@@ -513,30 +530,53 @@ function sendDanmaku() {
 
 function showDanmaku(data) {
     const container = document.getElementById('danmaku-container');
+
+    if (!container) {
+        console.error('❌ 找不到彈幕容器 #danmaku-container');
+        return;
+    }
+
     const danmaku = document.createElement('div');
 
     danmaku.className = 'danmaku-item';
-    danmaku.textContent = data.danmakuText;
+    danmaku.textContent = data.danmakuText || data.danmaku_text;
     danmaku.style.color = data.color || '#FFFFFF';
     danmaku.style.top = `${data.position || 50}%`;
 
+    // 🔧 優化：確保容器有正確的寬度
+    const galleryMain = document.getElementById('gallery-main');
+    const containerWidth = galleryMain ? galleryMain.offsetWidth : container.offsetWidth || window.innerWidth;
+
+    // 從右側外面開始（避免突然出現）
+    danmaku.style.left = `${containerWidth + 20}px`;
+    danmaku.style.willChange = 'left';
+
     container.appendChild(danmaku);
 
-    // Debug 輸出
-    console.log('彈幕已顯示:', {
-        text: data.danmakuText,
-        color: data.color,
-        position: data.position,
-        containerHeight: container.offsetHeight,
-        containerWidth: container.offsetWidth,
-        containerTop: container.offsetTop,
-        zIndex: window.getComputedStyle(container).zIndex
+    // 強制瀏覽器重繪以確保初始位置生效
+    danmaku.offsetHeight;
+
+    // 獲取彈幕寬度並計算結束位置（飛到左側外面）
+    const danmakuWidth = danmaku.offsetWidth;
+    const endPosition = -(danmakuWidth + 50);
+
+    console.log('🎬 彈幕:', danmaku.textContent, `| 容器寬度: ${containerWidth}px | 彈幕寬度: ${danmakuWidth}px | 路徑: ${containerWidth + 20}px → ${endPosition}px`);
+
+    // 雙重 RAF 確保 Safari/所有瀏覽器執行動畫
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            danmaku.style.transition = 'left 8s linear';
+            danmaku.style.left = `${endPosition}px`;
+        });
     });
 
-    // 8秒後移除
+    // 8.5秒後移除
     setTimeout(() => {
-        danmaku.remove();
-    }, 8000);
+        if (danmaku.parentNode) {
+            danmaku.remove();
+            console.log('🗑️ 彈幕已移除:', danmaku.textContent);
+        }
+    }, 8500);
 }
 
 // 測試彈幕功能（可在控制台呼叫）

@@ -289,9 +289,28 @@ app.get('/api/config', async (req, res) => {
 });
 
 // ============================================
-// WebSocket 伺服器
+// 啟動伺服器（先啟動 HTTP，再掛載 WebSocket）
 // ============================================
-const wss = new WebSocket.Server({ port: 8080 });
+const server = app.listen(port, async () => {
+    console.log('============================================');
+    console.log('活動互動牆伺服器啟動中...');
+    console.log('============================================');
+
+    // 測試資料庫連線
+    await db.testConnection();
+
+    // 初始化 Google Drive 雲端存儲
+    await googleDrive.initialize();
+
+    console.log(`HTTP 伺服器運行於: http://localhost:${port}`);
+    console.log(`WebSocket 伺服器運行於: ws://localhost:${port}`);
+    console.log('============================================');
+});
+
+// ============================================
+// WebSocket 伺服器（掛載到同一個 HTTP 服務器）
+// ============================================
+const wss = new WebSocket.Server({ server });
 
 wss.on('connection', async (ws) => {
     console.log('新的 WebSocket 連線');
@@ -321,23 +340,4 @@ wss.on('connection', async (ws) => {
     ws.on('close', () => {
         console.log('WebSocket 連線關閉');
     });
-});
-
-// ============================================
-// 啟動伺服器
-// ============================================
-app.listen(port, async () => {
-    console.log('============================================');
-    console.log('活動互動牆伺服器啟動中...');
-    console.log('============================================');
-
-    // 測試資料庫連線
-    await db.testConnection();
-
-    // 初始化 Google Drive 雲端存儲
-    await googleDrive.initialize();
-
-    console.log(`HTTP 伺服器運行於: http://localhost:${port}`);
-    console.log(`WebSocket 伺服器運行於: ws://localhost:8080`);
-    console.log('============================================');
 });
