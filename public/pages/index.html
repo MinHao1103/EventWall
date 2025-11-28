@@ -136,7 +136,7 @@
             localStorage.setItem('userName', name);
 
             // 跳轉到主頁面
-            window.location.href = 'main.html';
+            window.location.href = '/pages/main.html';
         }
 
         // 檢查是否已經有姓名，如果有就直接跳轉
@@ -144,7 +144,7 @@
             const savedName = localStorage.getItem('userName');
             if (savedName) {
                 // 可選：直接跳轉或顯示歡迎訊息
-                // window.location.href = 'main.html';
+                // window.location.href = '/pages/main.html';
             }
         };
     </script>

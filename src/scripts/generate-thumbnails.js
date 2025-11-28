@@ -5,11 +5,11 @@
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
-const db = require('./config/database');
+const db = require('../config/database');
 
 const UPLOAD_DIRS = {
-    photos: 'uploads/photos',
-    thumbnails: 'uploads/thumbnails'
+    photos: path.join(__dirname, '../../uploads/photos'),
+    thumbnails: path.join(__dirname, '../../uploads/thumbnails')
 };
 
 // 確保縮略圖目錄存在

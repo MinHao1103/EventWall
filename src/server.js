@@ -17,9 +17,9 @@ const port = 5001;
 
 // 確保上傳目錄存在
 const UPLOAD_DIRS = {
-    photos: 'uploads/photos',
-    videos: 'uploads/videos',
-    thumbnails: 'uploads/thumbnails'
+    photos: path.join(__dirname, '../uploads/photos'),
+    videos: path.join(__dirname, '../uploads/videos'),
+    thumbnails: path.join(__dirname, '../uploads/thumbnails')
 };
 
 Object.values(UPLOAD_DIRS).forEach(dir => {
@@ -73,8 +73,8 @@ const upload = multer({
 
 // 中介軟體
 app.use(express.json());
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+app.use(express.static(path.join(__dirname, '../public')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ============================================
 // 輔助函數
@@ -135,6 +135,15 @@ async function uploadToCloud(mediaId, localPath, filename, mimeType, mediaType) 
         console.error(`雲端上傳失敗 (ID: ${mediaId}):`, error.message);
     }
 }
+
+// ============================================
+// 頁面路由
+// ============================================
+
+// 根路徑重定向到首頁
+app.get('/', (req, res) => {
+    res.redirect('/pages/index.html');
+});
 
 // ============================================
 // API 路由
