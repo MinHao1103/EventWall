@@ -3,6 +3,9 @@
  * 使用 Express + MySQL + WebSocket
  */
 
+// 載入環境變數（.env 檔案）
+require('dotenv').config();
+
 const express = require('express');
 const multer = require('multer');
 const WebSocket = require('ws');

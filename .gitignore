@@ -9,6 +9,7 @@ uploads/
 
 # Google Drive 憑證（敏感資料）
 config/google-credentials.json
+src/config/google-credentials.json
 
 # 日誌檔案
 *.log
