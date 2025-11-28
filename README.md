@@ -49,10 +49,10 @@ mysql -u root -p event_wall < database/init.sql
 
 ```javascript
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: 'your_password',  // 修改這裡
-    database: 'event_wall'
+  host: "localhost",
+  user: "root",
+  password: "your_password", // 修改這裡
+  database: "event_wall",
 };
 ```
 
@@ -205,13 +205,48 @@ xcopy uploads backup\uploads /E /I
 cp -r uploads backup/uploads
 ```
 
+## Google Drive 雲端備份設定
+
+本專案支援將上傳的照片和影片自動備份到 Google Drive（可選功能）。
+
+### 功能特色
+
+啟用後，系統會：
+
+- ✅ **立即存儲到本地**：保證快速訪問和展示
+- ✅ **異步上傳到雲端**：背景自動備份，不影響用戶體驗
+- ✅ **雙重保障**：本地 + 雲端雙重存儲，資料更安全
+
+### 快速設定步驟
+
+1. 建立 Google Cloud 專案並啟用 Drive API
+2. 建立 Service Account 並下載 JSON 金鑰
+3. 將金鑰檔案放置於 `src/config/google-credentials.json`
+4. 重新啟動伺服器
+
+### 完整設定教學
+
+詳細的設定步驟、進階配置和常見問題，請參考：
+
+📖 **[Google Drive 雲端存儲設定指南](docs/GOOGLE_DRIVE_SETUP.md)**
+
+設定指南包含：
+
+- 詳細的圖文步驟說明
+- Service Account 建立流程
+- 進階設定（指定上傳資料夾）
+- 常見問題解答（FAQ）
+- 技術細節說明
+
+> **提示**：如果不設定雲端備份，系統會自動使用純本地存儲模式，所有功能正常運作。
+
 ## 技術支援
 
 如遇到問題，請檢查：
 
 1. MySQL 服務是否正常運行
 2. Node.js 版本是否符合需求
-3. 端口 5001 和 8080 是否被佔用
+3. 端口 5001 是否被佔用
 4. 資料庫密碼是否正確設定
 5. 檔案上傳目錄權限是否正確
 
