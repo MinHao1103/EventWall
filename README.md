@@ -87,15 +87,18 @@ npm run dev
 
 ### 啟用 Google Drive 雲端備份
 
-如需自動備份照片/影片到 Google Drive：
+如需自動備份照片/影片到**您的個人 Google Drive**：
 
 1. 查看詳細設定指南：`docs/GOOGLE_DRIVE_SETUP.md`
 2. 建立 Google Cloud 專案並啟用 Drive API
-3. 建立 Service Account 並下載 JSON 金鑰
-4. 將金鑰重新命名為 `google-credentials.json`
-5. 放置於 `src/config/google-credentials.json`
-6. 重啟伺服器
+3. 設定 OAuth 2.0 同意畫面
+4. 建立 OAuth 客戶端 ID
+5. 取得 Refresh Token：`npm run get-token`
+6. 設定環境變數（`.env` 檔案）
+7. 重啟伺服器
 
+> 使用 OAuth 2.0 授權，檔案會上傳到您的個人 Google Drive，使用您自己的儲存空間配額。
+>
 > 若不設定雲端備份，系統會自動使用純本地存儲模式。
 
 ### 修改網站設定
@@ -160,6 +163,9 @@ npm run dev
 # 生成縮圖（為現有照片生成縮圖）
 npm run generate-thumbnails
 
+# 取得 Google Drive Refresh Token（首次設定雲端備份）
+npm run get-token
+
 # 初始化資料庫（Windows）
 cd database && setup.bat
 ```
@@ -220,20 +226,23 @@ cp -r uploads backup/uploads
 ### 快速設定步驟
 
 1. 建立 Google Cloud 專案並啟用 Drive API
-2. 建立 Service Account 並下載 JSON 金鑰
-3. 將金鑰檔案放置於 `src/config/google-credentials.json`
-4. 重新啟動伺服器
+2. 設定 OAuth 2.0 同意畫面
+3. 建立 OAuth 客戶端 ID
+4. 執行 `npm run get-token` 取得 Refresh Token
+5. 將憑證設定到 `.env` 檔案
+6. 重新啟動伺服器
 
 ### 完整設定教學
 
 詳細的設定步驟、進階配置和常見問題，請參考：
 
-📖 **[Google Drive 雲端存儲設定指南](docs/GOOGLE_DRIVE_SETUP.md)**
+📖 **[Google Drive 雲端存儲設定指南 (OAuth 2.0)](docs/GOOGLE_DRIVE_SETUP.md)**
 
 設定指南包含：
 
 - 詳細的圖文步驟說明
-- Service Account 建立流程
+- OAuth 2.0 授權流程
+- Refresh Token 取得方法
 - 進階設定（指定上傳資料夾）
 - 常見問題解答（FAQ）
 - 技術細節說明

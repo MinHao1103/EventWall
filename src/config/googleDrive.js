@@ -1,6 +1,6 @@
 /**
  * Google Drive 雲端存儲服務
- * 提供異步上傳功能，不影響本地存儲
+ * 使用 OAuth 2.0 授權，提供異步上傳功能
  */
 
 const { google } = require('googleapis');
@@ -8,10 +8,16 @@ const fs = require('fs');
 const path = require('path');
 
 // Google Drive 設定
-const CREDENTIALS_PATH = path.join(__dirname, 'google-credentials.json');
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
-// 資料夾 ID（可選：預先在 Google Drive 建立資料夾並填入 ID）
+// OAuth 2.0 憑證（從環境變數讀取）
+const OAUTH_CONFIG = {
+    clientId: process.env.GDRIVE_CLIENT_ID,
+    clientSecret: process.env.GDRIVE_CLIENT_SECRET,
+    refreshToken: process.env.GDRIVE_REFRESH_TOKEN
+};
+
+// 資料夾 ID（從環境變數讀取）
 const FOLDER_IDS = {
     photos: process.env.GDRIVE_PHOTOS_FOLDER_ID || null,
     videos: process.env.GDRIVE_VIDEOS_FOLDER_ID || null
@@ -21,38 +27,44 @@ let driveService = null;
 let isEnabled = false;
 
 /**
- * 初始化 Google Drive 服務
+ * 初始化 Google Drive 服務（使用 OAuth 2.0）
  */
 async function initialize() {
     try {
-        // 檢查憑證檔案是否存在
-        if (!fs.existsSync(CREDENTIALS_PATH)) {
-            console.log('⚠ Google Drive: 未找到憑證檔案，雲端上傳功能已停用');
-            console.log(`   請將 Google Service Account 金鑰放置於: ${CREDENTIALS_PATH}`);
+        // 檢查必要的環境變數
+        if (!OAUTH_CONFIG.clientId || !OAUTH_CONFIG.clientSecret || !OAUTH_CONFIG.refreshToken) {
+            console.log('Google Drive: 未設定 OAuth 憑證，雲端上傳功能已停用');
+            console.log('   請在 .env 檔案中設定以下環境變數:');
+            console.log('   - GDRIVE_CLIENT_ID');
+            console.log('   - GDRIVE_CLIENT_SECRET');
+            console.log('   - GDRIVE_REFRESH_TOKEN');
             isEnabled = false;
             return false;
         }
 
-        // 讀取憑證
-        const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf8'));
+        // 建立 OAuth2 客戶端
+        const oauth2Client = new google.auth.OAuth2(
+            OAUTH_CONFIG.clientId,
+            OAUTH_CONFIG.clientSecret,
+            'http://localhost:3000/oauth2callback' // Redirect URI（僅用於取得 token 時）
+        );
 
-        // 建立認證
-        const auth = new google.auth.GoogleAuth({
-            credentials,
-            scopes: SCOPES,
+        // 設定 Refresh Token
+        oauth2Client.setCredentials({
+            refresh_token: OAUTH_CONFIG.refreshToken
         });
 
         // 建立 Drive 服務
-        driveService = google.drive({ version: 'v3', auth });
+        driveService = google.drive({ version: 'v3', auth: oauth2Client });
 
         // 測試連線
         await driveService.files.list({ pageSize: 1 });
 
         isEnabled = true;
-        console.log('Google Drive 雲端存儲已啟用');
+        console.log('Google Drive 雲端存儲已啟用 (OAuth 2.0)');
         return true;
     } catch (error) {
-        console.error('✗ Google Drive 初始化失敗:', error.message);
+        console.error('Google Drive 初始化失敗:', error.message);
         isEnabled = false;
         return false;
     }
@@ -72,11 +84,21 @@ async function uploadFile(localFilePath, fileName, mimeType, mediaType) {
     }
 
     try {
+        // Debug: 顯示資料夾 ID 設定
+        console.log(`[DEBUG] 上傳參數 - mediaType: ${mediaType}, 查找: ${mediaType + 's'}`);
+        console.log(`[DEBUG] FOLDER_IDS:`, FOLDER_IDS);
+        console.log(`[DEBUG] 選擇的資料夾 ID: ${FOLDER_IDS[mediaType + 's']}`);
+
         // 準備上傳參數
+        const folderKey = mediaType + 's';
+        const folderId = FOLDER_IDS[folderKey];
+
         const fileMetadata = {
             name: fileName,
-            parents: FOLDER_IDS[mediaType + 's'] ? [FOLDER_IDS[mediaType + 's']] : []
+            parents: folderId ? [folderId] : []
         };
+
+        console.log(`[DEBUG] 最終 parents:`, fileMetadata.parents);
 
         const media = {
             mimeType: mimeType,

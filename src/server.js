@@ -195,7 +195,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
         // 異步上傳到 Google Drive（不阻塞響應）
         if (googleDrive.isGoogleDriveEnabled()) {
-            uploadToCloud(result.id, req.file.path, req.file.filename, req.file.mimetype, fileData.mediaType)
+            uploadToCloud(result.id, req.file.path, req.file.filename, req.file.mimetype, mediaType)
                 .catch(err => console.error('雲端上傳背景任務失敗:', err));
         }
 
@@ -307,6 +307,12 @@ const server = app.listen(port, async () => {
     console.log('============================================');
     console.log('活動互動牆伺服器啟動中...');
     console.log('============================================');
+
+    // 顯示環境變數設定
+    console.log('\n環境變數設定:');
+    console.log(`   照片資料夾 ID: ${process.env.GDRIVE_PHOTOS_FOLDER_ID || '(未設定)'}`);
+    console.log(`   影片資料夾 ID: ${process.env.GDRIVE_VIDEOS_FOLDER_ID || '(未設定)'}`);
+    console.log('');
 
     // 測試資料庫連線
     await db.testConnection();
