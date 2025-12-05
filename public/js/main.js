@@ -976,7 +976,8 @@ async function uploadFile(file) {
 
   if (!allowedTypes.includes(file.type)) {
     showToast(
-      "不支援此格式 (${file.type})。僅支援 JPG, PNG, GIF, HEIC/HEIF, DNG, MP4, MOV, AVI",
+      "檔案格式不支援",
+      `不支援此格式 (${file.type})。僅支援 JPG, PNG, GIF, HEIC/HEIF, DNG, MP4, MOV, AVI`,
       "error",
       3000
     );
