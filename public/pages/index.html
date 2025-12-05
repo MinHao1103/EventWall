@@ -273,8 +273,8 @@
 <body>
     <div class="login-container">
         <div class="logo">🎉</div>
-        <h1>活動互動牆</h1>
-        <p class="subtitle">分享你的精彩時刻</p>
+        <h1 id="siteTitle">活動互動牆</h1>
+        <p class="subtitle" id="welcomeMessage">分享你的精彩時刻</p>
 
         <a href="/auth/google" class="google-btn" id="googleBtn">
             <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -310,8 +310,35 @@
     </div>
 
     <script>
+        // 載入網站設定
+        async function loadSiteConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+
+                if (config) {
+                    // 更新頁面標題
+                    if (config.site_title) {
+                        document.title = config.site_title + ' - 登入';
+                        document.getElementById('siteTitle').textContent = config.site_title;
+                    }
+
+                    // 更新歡迎訊息
+                    if (config.welcome_message) {
+                        document.getElementById('welcomeMessage').textContent = config.welcome_message;
+                    }
+                }
+            } catch (error) {
+                console.error('載入網站設定失敗:', error);
+            }
+        }
+
         // 檢查是否已登入
         window.onload = async function() {
+            // 載入網站設定
+            loadSiteConfig();
+
+            // 檢查登入狀態
             try {
                 const response = await fetch('/api/user');
                 const data = await response.json();

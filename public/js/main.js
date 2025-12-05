@@ -295,8 +295,20 @@ async function loadSiteConfig() {
         const config = await response.json();
 
         if (config) {
-            document.getElementById('guestsName').textContent = config.guests_name || '嘉賓姓名';
-            document.getElementById('eventDate').textContent = config.event_date || '2024-12-31';
+            // 更新頁面標題
+            if (config.site_title) {
+                document.title = config.site_title;
+            }
+
+            // 更新嘉賓姓名
+            const guestNameA = config.guest_name_a || '嘉賓A';
+            const guestNameB = config.guest_name_b || '嘉賓B';
+            document.getElementById('guestsName').textContent = `${guestNameA} ❤️ ${guestNameB}`;
+
+            // 更新活動日期
+            if (config.event_date) {
+                document.getElementById('eventDate').textContent = config.event_date;
+            }
         }
     } catch (error) {
         console.error('載入網站設定失敗:', error);
