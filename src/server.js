@@ -26,17 +26,17 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Session 設定（必須在 passport 之前）
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false, // 開發環境設為 false，生產環境若使用 HTTPS 則設為 true
-      maxAge: 24 * 60 * 60 * 1000, // 24 小時
-    },
-  })
-);
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || "your-secret-key",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // 開發環境設為 false，生產環境若使用 HTTPS 則設為 true
+    maxAge: 24 * 60 * 60 * 1000, // 24 小時
+  },
+});
+
+app.use(sessionMiddleware);
 
 // 初始化 Passport
 app.use(passport.initialize());
@@ -122,8 +122,34 @@ const wss = new WebSocket.Server({ server });
 // 儲存 wss 到 app 供路由使用
 app.set("wss", wss);
 
-wss.on("connection", async (ws) => {
-  info("新的 WebSocket 連線已建立");
+wss.on("connection", async (ws, req) => {
+  // 取得客戶端資訊
+  const clientIp =
+    req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+    req.socket.remoteAddress ||
+    "unknown";
+
+  // 解析 session 來取得使用者資訊
+  let userInfo = "訪客";
+
+  // 使用 sessionMiddleware 來解析 session
+  sessionMiddleware(req, {}, async () => {
+    if (req.session && req.session.passport && req.session.passport.user) {
+      try {
+        const userId = req.session.passport.user;
+        const user = await db.findUserById(userId);
+
+        if (user) {
+          userInfo = `${user.display_name} (${user.email})`;
+        }
+      } catch (err) {
+        // 如果查詢失敗，保持顯示訪客
+        userInfo = "訪客 (session 解析失敗)";
+      }
+    }
+
+    info(`WebSocket 連線已建立 | IP: ${clientIp} | 使用者: ${userInfo}`);
+  });
 
   try {
     // 發送初始媒體列表給新連接的客戶端
@@ -134,11 +160,11 @@ wss.on("connection", async (ws) => {
   }
 
   ws.on("close", () => {
-    info("WebSocket 連線已關閉");
+    info(`WebSocket 連線已關閉 | IP: ${clientIp} | 使用者: ${userInfo}`);
   });
 
   ws.on("error", (err) => {
-    error("WebSocket 錯誤:", err);
+    error(`WebSocket 錯誤 | IP: ${clientIp}:`, err);
   });
 });
 
