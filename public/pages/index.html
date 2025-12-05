@@ -520,28 +520,6 @@
             opacity: 0;
         }
 
-        .info-box::before {
-            content: '💡';
-            position: absolute;
-            top: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            background: white;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            box-shadow: var(--shadow-md);
-            animation: bulbGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes bulbGlow {
-            0%, 100% { filter: brightness(1) drop-shadow(0 0 0 rgba(255, 193, 7, 0)); }
-            50% { filter: brightness(1.2) drop-shadow(0 0 12px rgba(255, 193, 7, 0.6)); }
-        }
 
         /* ==========================================
            響應式設計

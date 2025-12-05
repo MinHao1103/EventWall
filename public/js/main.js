@@ -307,7 +307,7 @@ async function loadSiteConfig() {
       const guestNameB = config.guest_name_b || "嘉賓B";
       document.getElementById(
         "guestsName"
-      ).textContent = `${guestNameA} ❤️ ${guestNameB}`;
+      ).textContent = `${guestNameA} & ${guestNameB}`;
 
       // 更新活動日期 (使用客戶端時區顯示)
       if (config.event_date) {
@@ -474,13 +474,16 @@ function setupMessageDrawer() {
   }
 
   // 監聽視窗尺寸變化，維持行為一致
-  window.addEventListener("resize", debounce(() => {
-    if (window.matchMedia("(max-width: 768px)").matches) {
-      closeMessageDrawer();
-    } else {
-      openMessageDrawer(false);
-    }
-  }, 200));
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        closeMessageDrawer();
+      } else {
+        openMessageDrawer(false);
+      }
+    }, 200)
+  );
 }
 
 function toggleMessageDrawer() {
@@ -1119,26 +1122,26 @@ function logout() {
 }
 
 if (window.visualViewport) {
-    const fab = document.getElementById('messageFab');
-    
-    // 請確保這裡的初始值 (90) 與 styles.css 中的 bottom: 90px; 保持一致
-    const initialBottom = 90; 
+  const fab = document.getElementById("messageFab");
 
-    if (fab) {
-        // 監聽可視視窗的 resize 事件（通常在鍵盤彈出或縮回時觸發）
-        window.visualViewport.addEventListener('resize', () => {
-            const viewportHeight = window.innerHeight;
-            const visualHeight = window.visualViewport.height;
-            const offset = viewportHeight - visualHeight; 
-            
-            // 如果 offset > 0，表示鍵盤彈出了
-            if (offset > 0) {
-                // 鍵盤彈出：將按鈕往上推 offset 距離，並保持初始的 90px 間距
-                fab.style.bottom = `${offset + initialBottom}px`;
-            } else {
-                // 鍵盤縮回：恢復原本的 CSS 樣式
-                fab.style.bottom = `${initialBottom}px`;
-            }
-        });
-    }
+  // 請確保這裡的初始值 (90) 與 styles.css 中的 bottom: 90px; 保持一致
+  const initialBottom = 90;
+
+  if (fab) {
+    // 監聽可視視窗的 resize 事件（通常在鍵盤彈出或縮回時觸發）
+    window.visualViewport.addEventListener("resize", () => {
+      const viewportHeight = window.innerHeight;
+      const visualHeight = window.visualViewport.height;
+      const offset = viewportHeight - visualHeight;
+
+      // 如果 offset > 0，表示鍵盤彈出了
+      if (offset > 0) {
+        // 鍵盤彈出：將按鈕往上推 offset 距離，並保持初始的 90px 間距
+        fab.style.bottom = `${offset + initialBottom}px`;
+      } else {
+        // 鍵盤縮回：恢復原本的 CSS 樣式
+        fab.style.bottom = `${initialBottom}px`;
+      }
+    });
+  }
 }
