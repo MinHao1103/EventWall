@@ -59,6 +59,82 @@ body {
     font-weight: 400;
 }
 
+/* Header 內容佈局 */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.header-title {
+    text-align: left;
+    flex: 1;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* 使用者資料顯示 */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-profile img {
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 登出按鈕 */
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+}
+
+.logout-icon {
+    font-size: 16px;
+}
+
+.logout-text {
+    font-family: 'Microsoft JhengHei', sans-serif;
+}
+
 /* 畫廊區 Gallery */
 .carousel-container {
     position: relative;
@@ -648,6 +724,43 @@ body {
 
 /* 響應式設計 - 手機直屏 (所有 iPhone) */
 @media (max-width: 768px) {
+    /* Header 響應式調整 */
+    #header {
+        padding: 20px 15px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .header-title {
+        text-align: center;
+    }
+
+    .header-user {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .user-profile {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .logout-btn {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+
+    .logout-text {
+        display: none;
+    }
+
+    .logout-icon {
+        font-size: 18px;
+    }
+
     /* 容器調整 */
     .carousel-container {
         margin: 10px 0;

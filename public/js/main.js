@@ -900,3 +900,18 @@ async function exportData() {
         alert('匯出資料失敗，請稍後再試');
     }
 }
+
+// ============================================
+// 登出功能
+// ============================================
+function logout() {
+    if (confirm('確定要登出嗎？')) {
+        // 關閉 WebSocket 連線
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.close();
+        }
+
+        // 重定向到登出 API
+        window.location.href = '/auth/logout';
+    }
+}

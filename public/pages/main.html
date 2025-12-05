@@ -11,8 +11,19 @@
 <body>
     <!-- Header 標題區 -->
     <header id="header">
-        <h1 id="guestsName">嘉賓姓名</h1>
-        <p id="eventDate">2024-12-31</p>
+        <div class="header-content">
+            <div class="header-title">
+                <h1 id="guestsName">嘉賓姓名</h1>
+                <p id="eventDate">2024-12-31</p>
+            </div>
+            <div class="header-user">
+                <div id="userProfile" class="user-profile"></div>
+                <button onclick="logout()" class="logout-btn" title="登出">
+                    <span class="logout-icon">🚪</span>
+                    <span class="logout-text">登出</span>
+                </button>
+            </div>
+        </div>
     </header>
 
     <!-- Gallery 畫廊區 -->
