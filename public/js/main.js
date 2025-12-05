@@ -176,6 +176,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         sendMessage();
       }
     });
+
+    // 留言抽屜：預設手機收起，桌面保持展開
+    setupMessageDrawer();
   } catch (error) {
     console.error("檢查登入狀態失敗:", error);
     window.location.href = "/pages/index.html";
@@ -448,6 +451,78 @@ function renderThumbnails() {
       { once: true }
     );
   });
+}
+
+// ============================================
+// 留言抽屜 (FAB 開啟/關閉)
+// ============================================
+function setupMessageDrawer() {
+  const drawer = document.getElementById("messageDrawer");
+  const overlay = document.getElementById("messageOverlay");
+  const fab = document.getElementById("messageFab");
+
+  if (!drawer || !overlay || !fab) return;
+
+  // 點擊 FAB 切換開關
+  fab.addEventListener("click", toggleMessageDrawer);
+
+  // 桌面初始展開，手機初始收起
+  if (window.matchMedia("(max-width: 768px)").matches) {
+    closeMessageDrawer();
+  } else {
+    openMessageDrawer(false);
+  }
+
+  // 監聽視窗尺寸變化，維持行為一致
+  window.addEventListener("resize", debounce(() => {
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      closeMessageDrawer();
+    } else {
+      openMessageDrawer(false);
+    }
+  }, 200));
+}
+
+function toggleMessageDrawer() {
+  const drawer = document.getElementById("messageDrawer");
+  if (!drawer) return;
+  if (drawer.classList.contains("open")) {
+    closeMessageDrawer();
+  } else {
+    openMessageDrawer();
+  }
+}
+
+function openMessageDrawer(withFocus = true) {
+  const drawer = document.getElementById("messageDrawer");
+  const overlay = document.getElementById("messageOverlay");
+  const fab = document.getElementById("messageFab");
+  if (!drawer || !overlay || !fab) return;
+
+  drawer.classList.add("open");
+  overlay.classList.add("active");
+  fab.setAttribute("aria-pressed", "true");
+  document.body.classList.add("drawer-open");
+
+  // 聚焦輸入框，提升互動
+  if (withFocus) {
+    setTimeout(() => {
+      const input = document.getElementById("messageText");
+      if (input) input.focus();
+    }, 150);
+  }
+}
+
+function closeMessageDrawer() {
+  const drawer = document.getElementById("messageDrawer");
+  const overlay = document.getElementById("messageOverlay");
+  const fab = document.getElementById("messageFab");
+  if (!drawer || !overlay || !fab) return;
+
+  drawer.classList.remove("open");
+  overlay.classList.remove("active");
+  fab.setAttribute("aria-pressed", "false");
+  document.body.classList.remove("drawer-open");
 }
 
 // 更新縮圖選中狀態

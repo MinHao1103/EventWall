@@ -65,19 +65,6 @@
             <input type="text" id="danmakuText" placeholder="輸入彈幕..." maxlength="50">
             <button class="ripple" onclick="sendDanmaku()">發送</button>
         </div>
-
-        <!-- 右側留言板 -->
-        <div class="message-board">
-            <div class="message-board-header">
-                <h3>💬 訪客留言</h3>
-            </div>
-            <div id="messages" class="messages-container"></div>
-            <div class="message-input">
-                <input type="text" id="messageName" readonly>
-                <textarea id="messageText" placeholder="留下您的祝福..." maxlength="200"></textarea>
-                <button class="ripple" onclick="sendMessage()">送出</button>
-            </div>
-        </div>
     </div>
 
     <!-- 上傳區 -->
@@ -92,6 +79,27 @@
             </div>
         </div>
         <div id="uploadProgress" class="upload-progress"></div>
+    </div>
+
+    <!-- 訪客留言懸浮開啟鈕 -->
+    <button id="messageFab" class="message-fab ripple" aria-label="切換留言板">
+        💬
+    </button>
+
+    <!-- 留言抽屜覆蓋層 -->
+    <div id="messageOverlay" class="drawer-overlay" onclick="closeMessageDrawer()"></div>
+
+    <!-- 訪客留言區（抽屜面板） -->
+    <div class="message-board" id="messageDrawer" aria-label="訪客留言">
+        <div class="message-board-header">
+            <h3>💬 訪客留言</h3>
+        </div>
+        <div id="messages" class="messages-container"></div>
+        <div class="message-input">
+            <input type="text" id="messageName" readonly aria-readonly="true">
+            <textarea id="messageText" placeholder="留下您的祝福..." maxlength="200"></textarea>
+            <button class="ripple" onclick="sendMessage()">送出</button>
+        </div>
     </div>
 
     <!-- Footer 統計區 -->

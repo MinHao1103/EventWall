@@ -14,6 +14,12 @@ body {
     flex-direction: column;
 }
 
+/* 抽屜開啟時鎖定背景卷動 */
+.drawer-open {
+    overflow: hidden;
+    touch-action: none;
+}
+
 /* Header 標題區 */
 #header {
     text-align: center;
@@ -415,18 +421,27 @@ body {
 
 /* 留言板 */
 .message-board {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 340px;
-    height: 100%;
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto 0;
+    min-height: 320px;
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
-    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.15);
-    z-index: 15;
-    border-left: 1px solid rgba(102, 126, 234, 0.1);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(102, 126, 234, 0.08);
+    border: 1px solid rgba(102, 126, 234, 0.12);
+    border-radius: 12px;
+    padding: 0;
+    transition: transform 0.35s ease, opacity 0.2s ease;
+    transform: translateY(0);
+    opacity: 1;
+    z-index: 25;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
 }
 
 .message-board-header {
@@ -436,6 +451,10 @@ body {
     text-align: center;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .message-board-header::before {
@@ -454,12 +473,17 @@ body {
     font-weight: 600;
     position: relative;
     z-index: 1;
+    margin: 0;
 }
 
 .messages-container {
     flex: 1;
     overflow-y: auto;
     padding: 15px;
+    max-height: 360px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
 }
 
 .message-item {
@@ -491,6 +515,53 @@ body {
     padding: 15px;
     border-top: 1px solid #e0e0e0;
     background: white;
+    border-radius: 0 0 12px 12px;
+}
+
+.message-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 22px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 22px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding-bottom: 2px;
+    pointer-events: auto;
+}
+
+.message-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+}
+
+.message-fab:active {
+    transform: translateY(0);
+}
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 29;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .message-input input {
@@ -500,6 +571,12 @@ body {
     border-radius: 5px;
     margin-bottom: 8px;
     font-size: 14px;
+}
+
+.message-input input[readonly] {
+    background: #f7f7f7;
+    color: #555;
+    cursor: default;
 }
 
 .message-input textarea {
@@ -545,9 +622,9 @@ body {
 
 /* 上傳區 */
 .upload-section {
-    max-width: 800px;
-    margin: 30px auto;
-    padding: 20px;
+    max-width: 620px;
+    margin: 20px auto;
+    padding: 16px;
     text-align: center;
 }
 
@@ -559,7 +636,7 @@ body {
 .drop-zone {
     border: 3px dashed #ccc;
     border-radius: 10px;
-    padding: 60px 20px;
+    padding: 34px 16px;
     cursor: pointer;
     transition: all 0.3s;
     background: white;
@@ -580,20 +657,20 @@ body {
 }
 
 .upload-icon {
-    font-size: 60px;
+    font-size: 42px;
     display: block;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .drop-zone p {
-    font-size: 18px;
+    font-size: 16px;
     color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .drop-zone small {
     color: #999;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .upload-progress {
@@ -724,6 +801,11 @@ body {
 
 /* 響應式設計 - 手機直屏 (所有 iPhone) */
 @media (max-width: 768px) {
+    /* 預留底部固定留言板空間，跟隨留言板高度 */
+    body {
+        padding-bottom: calc(38vh + env(safe-area-inset-bottom) + 12px);
+    }
+
     /* Header 響應式調整 */
     #header {
         padding: 20px 15px;
@@ -767,6 +849,7 @@ body {
         border-radius: 0;
         max-width: 100%;
         position: relative; /* 確保絕對定位的子元素正確定位 */
+        padding: 0 8px;
     }
 
     /* 畫廊主顯示區 */
@@ -816,18 +899,29 @@ body {
 
     /* 留言板改為下方區塊 */
     .message-board {
-        position: relative;
+        position: fixed;
+        left: 0;
+        bottom: 0;
         width: 100%;
         right: auto;
         top: auto;
-        max-height: none;
-        height: auto;
-        box-shadow: none;
+        height: 38vh;
+        max-height: 42vh;
+        box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.18);
         border-top: 2px solid #667eea;
+        border-left: none;
+        z-index: 30;
+        padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
+        margin: 0;
+        border-radius: 12px 12px 0 0;
     }
 
     .messages-container {
-        max-height: 250px;
+        flex: 1;
+        min-height: 140px;
+        max-height: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* 行動裝置平滑捲動 */
     }
 
     /* 彈幕輸入框移到縮圖下方 */
@@ -870,12 +964,80 @@ body {
 
     /* 上傳區調整 */
     .upload-section {
-        margin: 20px 10px;
-        padding: 15px;
+        margin: 12px 10px;
+        padding: 10px;
+        max-width: 440px;
     }
 
     .drop-zone {
-        padding: 40px 15px;
+        padding: 18px 12px;
+        min-height: 110px;
+        border-width: 2px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .upload-icon {
+        font-size: 34px;
+        margin-bottom: 4px;
+    }
+
+    .drop-zone p {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .drop-zone small {
+        font-size: 11px;
+    }
+
+    /* 留言抽屜：預設收起，FAB 開啟；縮減底部留白 */
+    body {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .message-board {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        right: auto;
+        top: auto;
+        height: 70vh;
+        max-height: 78vh;
+        box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.18);
+        border-top: 2px solid #667eea;
+        border-left: none;
+        z-index: 30;
+        padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
+        margin: 0;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+    }
+
+    .message-board.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .messages-container {
+        flex: 1;
+        min-height: 140px;
+        max-height: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        overscroll-behavior: contain;
+    }
+
+    .message-fab {
+        right: 16px;
+        bottom: calc(22px + env(safe-area-inset-bottom));
+        z-index: 60;
     }
 
     /* Footer 統計區 */
