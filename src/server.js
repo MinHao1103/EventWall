@@ -91,22 +91,22 @@ const server = app.listen(port, async () => {
   // 測試資料庫連線
   try {
     await db.testConnection();
-    console.log("\n✅ 資料庫連線成功");
+    console.log("\n[成功] 資料庫連線成功");
   } catch (error) {
-    console.error("\n❌ 資料庫連線失敗:", error.message);
+    console.error("\n[錯誤] 資料庫連線失敗:", error.message);
     process.exit(1);
   }
 
   // 檢查 Google Drive 設定
   const googleDrive = require("./config/googleDrive");
   if (googleDrive.isGoogleDriveEnabled()) {
-    console.log("✅ Google Drive 雲端備份已啟用");
+    console.log("[成功] Google Drive 雲端備份已啟用");
   } else {
-    console.log("⚠️  Google Drive 雲端備份未啟用（僅本地存儲）");
+    console.log("[警告] Google Drive 雲端備份未啟用（僅本地存儲）");
   }
 
   console.log("\n============================================");
-  console.log(`🚀 伺服器已啟動於: http://localhost:${port}`);
+  console.log(`[啟動] 伺服器已啟動於: http://localhost:${port}`);
   console.log("============================================\n");
 });
 
