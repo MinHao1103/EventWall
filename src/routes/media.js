@@ -11,6 +11,7 @@ const db = require("../config/database");
 const googleDrive = require("../config/googleDrive");
 const { upload, UPLOAD_DIRS } = require("../middleware/upload");
 const { ensureAuthenticated } = require("../middleware/auth");
+const { info, error } = require("../utils/logger");
 
 /**
  * 生成圖片縮略圖
@@ -29,8 +30,8 @@ async function generateThumbnail(imagePath, filename) {
       .toFile(thumbnailPath);
 
     return `/uploads/thumbnails/${thumbnailFilename}`;
-  } catch (error) {
-    console.error("生成縮略圖失敗:", error);
+  } catch (err) {
+    error("生成縮略圖失敗:", err);
     return null;
   }
 }
@@ -47,7 +48,7 @@ async function uploadToCloud(
   wss
 ) {
   try {
-    console.log(`開始上傳到雲端: ${filename}`);
+    info(`開始上傳到雲端: ${filename}`);
 
     const cloudResult = await googleDrive.uploadFile(
       localPath,
@@ -78,8 +79,8 @@ async function uploadToCloud(
         }
       });
     }
-  } catch (error) {
-    console.error(`雲端上傳失敗 (ID: ${mediaId}):`, error.message);
+  } catch (err) {
+    error(`雲端上傳失敗 (ID: ${mediaId}):`, err.message);
   }
 }
 
@@ -149,11 +150,11 @@ router.post(
           req.file.mimetype,
           mediaType,
           wss
-        ).catch((err) => console.error("雲端上傳背景任務失敗:", err));
+        ).catch((err) => error("雲端上傳背景任務失敗:", err));
       }
-    } catch (error) {
-      console.error("上傳失敗:", error);
-      res.status(500).json({ error: "上傳失敗: " + error.message });
+    } catch (err) {
+      error("上傳失敗:", err);
+      res.status(500).json({ error: "上傳失敗: " + err.message });
     }
   }
 );
@@ -165,8 +166,8 @@ router.get("/", async (req, res) => {
   try {
     const media = await db.getAllMedia();
     res.json(media);
-  } catch (error) {
-    console.error("取得媒體失敗:", error);
+  } catch (err) {
+    error("取得媒體失敗:", err);
     res.status(500).json({ error: "取得媒體失敗" });
   }
 });

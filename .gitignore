@@ -10,6 +10,7 @@ uploads/
 # 日誌檔案
 *.log
 npm-debug.log*
+logs/
 
 # 作業系統檔案
 .DS_Store

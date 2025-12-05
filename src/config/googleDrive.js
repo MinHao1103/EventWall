@@ -6,6 +6,7 @@
 const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
+const { info, warn, error, debug } = require('../utils/logger');
 
 // Google Drive 設定
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
@@ -33,11 +34,11 @@ async function initialize() {
     try {
         // 檢查必要的環境變數
         if (!OAUTH_CONFIG.clientId || !OAUTH_CONFIG.clientSecret || !OAUTH_CONFIG.refreshToken) {
-            console.log('Google Drive: 未設定 OAuth 憑證，雲端上傳功能已停用');
-            console.log('   請在 .env 檔案中設定以下環境變數:');
-            console.log('   - GDRIVE_CLIENT_ID');
-            console.log('   - GDRIVE_CLIENT_SECRET');
-            console.log('   - GDRIVE_REFRESH_TOKEN');
+            warn('Google Drive: 未設定 OAuth 憑證，雲端上傳功能已停用');
+            info('   請在 .env 檔案中設定以下環境變數:');
+            info('   - GDRIVE_CLIENT_ID');
+            info('   - GDRIVE_CLIENT_SECRET');
+            info('   - GDRIVE_REFRESH_TOKEN');
             isEnabled = false;
             return false;
         }
@@ -61,10 +62,10 @@ async function initialize() {
         await driveService.files.list({ pageSize: 1 });
 
         isEnabled = true;
-        console.log('Google Drive 雲端存儲已啟用 (OAuth 2.0)');
+        info('Google Drive 雲端存儲已啟用 (OAuth 2.0)');
         return true;
-    } catch (error) {
-        console.error('Google Drive 初始化失敗:', error.message);
+    } catch (err) {
+        error('Google Drive 初始化失敗:', err.message);
         isEnabled = false;
         return false;
     }
@@ -85,9 +86,9 @@ async function uploadFile(localFilePath, fileName, mimeType, mediaType) {
 
     try {
         // Debug: 顯示資料夾 ID 設定
-        console.log(`[DEBUG] 上傳參數 - mediaType: ${mediaType}, 查找: ${mediaType + 's'}`);
-        console.log(`[DEBUG] FOLDER_IDS:`, FOLDER_IDS);
-        console.log(`[DEBUG] 選擇的資料夾 ID: ${FOLDER_IDS[mediaType + 's']}`);
+        debug(`[DEBUG] 上傳參數 - mediaType: ${mediaType}, 查找: ${mediaType + 's'}`);
+        debug(`[DEBUG] FOLDER_IDS: ${JSON.stringify(FOLDER_IDS)}`);
+        debug(`[DEBUG] 選擇的資料夾 ID: ${FOLDER_IDS[mediaType + 's']}`);
 
         // 準備上傳參數
         const folderKey = mediaType + 's';
@@ -98,7 +99,7 @@ async function uploadFile(localFilePath, fileName, mimeType, mediaType) {
             parents: folderId ? [folderId] : []
         };
 
-        console.log(`[DEBUG] 最終 parents:`, fileMetadata.parents);
+        debug(`[DEBUG] 最終 parents: ${JSON.stringify(fileMetadata.parents)}`);
 
         const media = {
             mimeType: mimeType,
@@ -123,7 +124,7 @@ async function uploadFile(localFilePath, fileName, mimeType, mediaType) {
             }
         });
 
-        console.log(`已上傳到 Google Drive: ${fileName} (ID: ${fileId})`);
+        info(`已上傳到 Google Drive: ${fileName} (ID: ${fileId})`);
 
         return {
             success: true,
@@ -133,11 +134,11 @@ async function uploadFile(localFilePath, fileName, mimeType, mediaType) {
             // 生成直接預覽連結
             directLink: `https://drive.google.com/uc?export=view&id=${fileId}`
         };
-    } catch (error) {
-        console.error(`✗ Google Drive 上傳失敗: ${fileName}`, error.message);
+    } catch (err) {
+        error(`✗ Google Drive 上傳失敗: ${fileName}`, err.message);
         return {
             success: false,
-            error: error.message
+            error: err.message
         };
     }
 }
@@ -154,10 +155,10 @@ async function deleteFile(fileId) {
 
     try {
         await driveService.files.delete({ fileId });
-        console.log(`已從 Google Drive 刪除檔案: ${fileId}`);
+        info(`已從 Google Drive 刪除檔案: ${fileId}`);
         return true;
-    } catch (error) {
-        console.error(`✗ Google Drive 刪除失敗: ${fileId}`, error.message);
+    } catch (err) {
+        error(`✗ Google Drive 刪除失敗: ${fileId}`, err.message);
         return false;
     }
 }
@@ -184,8 +185,8 @@ async function getStorageInfo() {
             fields: 'storageQuota'
         });
         return response.data.storageQuota;
-    } catch (error) {
-        console.error('取得 Google Drive 空間資訊失敗:', error.message);
+    } catch (err) {
+        error('取得 Google Drive 空間資訊失敗:', err.message);
         return null;
     }
 }

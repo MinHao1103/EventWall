@@ -4,6 +4,7 @@
  */
 
 const mysql = require('mysql2');
+const { info, error } = require('../utils/logger');
 
 // 資料庫連線設定
 const dbConfig = {
@@ -26,12 +27,12 @@ const promisePool = pool.promise();
 async function testConnection() {
     try {
         const connection = await promisePool.getConnection();
-        console.log('MySQL 資料庫連線成功');
-        console.log(`資料庫: ${dbConfig.database}`);
+        info('MySQL 資料庫連線成功');
+        info(`資料庫: ${dbConfig.database}`);
         connection.release();
         return true;
-    } catch (error) {
-        console.error('✗ MySQL 資料庫連線失敗:', error.message);
+    } catch (err) {
+        error('✗ MySQL 資料庫連線失敗:', err.message);
         return false;
     }
 }
@@ -48,8 +49,8 @@ async function getStatistics() {
             videoCount: videos[0].count,
             messageCount: messages[0].count
         };
-    } catch (error) {
-        console.error('取得統計資料失敗:', error);
+    } catch (err) {
+        error('取得統計資料失敗:', err);
         return null;
     }
 }
@@ -75,9 +76,9 @@ async function insertMediaFile(fileData) {
     try {
         const [result] = await promisePool.query(query, values);
         return { id: result.insertId, ...fileData };
-    } catch (error) {
-        console.error('新增媒體檔案失敗:', error);
-        throw error;
+    } catch (err) {
+        error('新增媒體檔案失敗:', err);
+        throw err;
     }
 }
 
@@ -87,9 +88,9 @@ async function getAllMedia(limit = 100) {
         const query = 'SELECT * FROM media_files ORDER BY upload_time DESC LIMIT ?';
         const [rows] = await promisePool.query(query, [limit]);
         return rows;
-    } catch (error) {
-        console.error('取得媒體檔案失敗:', error);
-        throw error;
+    } catch (err) {
+        error('取得媒體檔案失敗:', err);
+        throw err;
     }
 }
 
@@ -101,9 +102,9 @@ async function insertMessage(messageData) {
     try {
         const [result] = await promisePool.query(query, values);
         return { id: result.insertId, ...messageData };
-    } catch (error) {
-        console.error('新增留言失敗:', error);
-        throw error;
+    } catch (err) {
+        error('新增留言失敗:', err);
+        throw err;
     }
 }
 
@@ -115,9 +116,9 @@ async function getAllMessages(limit = 100) {
             [limit]
         );
         return rows;
-    } catch (error) {
-        console.error('取得留言失敗:', error);
-        throw error;
+    } catch (err) {
+        error('取得留言失敗:', err);
+        throw err;
     }
 }
 
@@ -134,9 +135,9 @@ async function insertDanmaku(danmakuData) {
     try {
         const [result] = await promisePool.query(query, values);
         return { id: result.insertId, ...danmakuData };
-    } catch (error) {
-        console.error('新增彈幕失敗:', error);
-        throw error;
+    } catch (err) {
+        error('新增彈幕失敗:', err);
+        throw err;
     }
 }
 
@@ -145,9 +146,9 @@ async function getSiteConfig() {
     try {
         const [rows] = await promisePool.query('SELECT * FROM site_config LIMIT 1');
         return rows[0] || null;
-    } catch (error) {
-        console.error('取得網站設定失敗:', error);
-        throw error;
+    } catch (err) {
+        error('取得網站設定失敗:', err);
+        throw err;
     }
 }
 
@@ -172,11 +173,11 @@ async function updateMediaCloudInfo(mediaId, cloudInfo) {
 
     try {
         await promisePool.query(query, values);
-        console.log(`已更新媒體檔案 ${mediaId} 的雲端資訊`);
+        info(`已更新媒體檔案 ${mediaId} 的雲端資訊`);
         return true;
-    } catch (error) {
-        console.error('更新雲端資訊失敗:', error);
-        throw error;
+    } catch (err) {
+        error('更新雲端資訊失敗:', err);
+        throw err;
     }
 }
 
@@ -219,9 +220,9 @@ async function findOrCreateUser(profile) {
             );
             return newUser[0];
         }
-    } catch (error) {
-        console.error('查找或建立使用者失敗:', error);
-        throw error;
+    } catch (err) {
+        error('查找或建立使用者失敗:', err);
+        throw err;
     }
 }
 
@@ -233,9 +234,9 @@ async function findUserById(userId) {
             [userId]
         );
         return rows[0] || null;
-    } catch (error) {
-        console.error('查找使用者失敗:', error);
-        throw error;
+    } catch (err) {
+        error('查找使用者失敗:', err);
+        throw err;
     }
 }
 

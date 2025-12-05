@@ -12,6 +12,7 @@ const passport = require("./config/passport");
 const WebSocket = require("ws");
 const path = require("path");
 const db = require("./config/database");
+const { info, warn, error } = require("./utils/logger");
 
 const app = express();
 const port = 5001;
@@ -69,31 +70,31 @@ app.use("/api", apiRoutes);
 // ============================================
 
 const server = app.listen(port, async () => {
-  console.log("============================================");
-  console.log("活動互動牆伺服器啟動中...");
-  console.log("============================================");
+  info("============================================");
+  info("活動互動牆伺服器啟動中...");
+  info("============================================");
 
   // 顯示環境變數設定
-  console.log("\n環境變數設定:");
-  console.log(
+  info("環境變數設定:");
+  info(
     `- Google OAuth Client ID: ${
       process.env.GOOGLE_AUTH_CLIENT_ID ? "已設定" : "未設定"
     }`
   );
-  console.log(
+  info(
     `- Google Drive Client ID: ${
       process.env.GDRIVE_CLIENT_ID ? "已設定" : "未設定"
     }`
   );
-  console.log(`- Session Secret: ${process.env.SESSION_SECRET ? "已設定" : "未設定"}`);
-  console.log(`- 應用程式 URL: ${process.env.APP_URL || "http://localhost:5001"}`);
+  info(`- Session Secret: ${process.env.SESSION_SECRET ? "已設定" : "未設定"}`);
+  info(`- 應用程式 URL: ${process.env.APP_URL || "http://localhost:5001"}`);
 
   // 測試資料庫連線
   try {
     await db.testConnection();
-    console.log("\n[成功] 資料庫連線成功");
-  } catch (error) {
-    console.error("\n[錯誤] 資料庫連線失敗:", error.message);
+    info("[成功] 資料庫連線成功");
+  } catch (err) {
+    error("[錯誤] 資料庫連線失敗:", err.message);
     process.exit(1);
   }
 
@@ -102,14 +103,14 @@ const server = app.listen(port, async () => {
   await googleDrive.initialize();
 
   if (googleDrive.isGoogleDriveEnabled()) {
-    console.log("\n[成功] Google Drive 雲端備份已啟用");
+    info("[成功] Google Drive 雲端備份已啟用");
   } else {
-    console.log("\n[警告] Google Drive 雲端備份未啟用（僅本地存儲）");
+    warn("[警告] Google Drive 雲端備份未啟用（僅本地存儲）");
   }
 
-  console.log("\n============================================");
-  console.log(`[啟動] 伺服器已啟動於: http://localhost:${port}`);
-  console.log("============================================\n");
+  info("============================================");
+  info(`[啟動] 伺服器已啟動於: http://localhost:${port}`);
+  info("============================================");
 });
 
 // ============================================
@@ -122,22 +123,22 @@ const wss = new WebSocket.Server({ server });
 app.set("wss", wss);
 
 wss.on("connection", async (ws) => {
-  console.log("新的 WebSocket 連線已建立");
+  info("新的 WebSocket 連線已建立");
 
   try {
     // 發送初始媒體列表給新連接的客戶端
     const media = await db.getAllMedia();
     ws.send(JSON.stringify({ type: "initMedia", data: media }));
-  } catch (error) {
-    console.error("發送初始媒體列表失敗:", error);
+  } catch (err) {
+    error("發送初始媒體列表失敗:", err);
   }
 
   ws.on("close", () => {
-    console.log("WebSocket 連線已關閉");
+    info("WebSocket 連線已關閉");
   });
 
-  ws.on("error", (error) => {
-    console.error("WebSocket 錯誤:", error);
+  ws.on("error", (err) => {
+    error("WebSocket 錯誤:", err);
   });
 });
 
@@ -146,17 +147,17 @@ wss.on("connection", async (ws) => {
 // ============================================
 
 process.on("SIGTERM", () => {
-  console.log("\n收到 SIGTERM 信號，正在優雅關閉伺服器...");
+  info("收到 SIGTERM 信號，正在優雅關閉伺服器...");
   server.close(() => {
-    console.log("HTTP 伺服器已關閉");
+    info("HTTP 伺服器已關閉");
     process.exit(0);
   });
 });
 
 process.on("SIGINT", () => {
-  console.log("\n收到 SIGINT 信號，正在優雅關閉伺服器...");
+  info("收到 SIGINT 信號，正在優雅關閉伺服器...");
   server.close(() => {
-    console.log("HTTP 伺服器已關閉");
+    info("HTTP 伺服器已關閉");
     process.exit(0);
   });
 });
