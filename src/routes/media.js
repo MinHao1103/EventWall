@@ -22,6 +22,7 @@ async function generateThumbnail(imagePath, filename) {
     const thumbnailPath = path.join(UPLOAD_DIRS.thumbnails, thumbnailFilename);
 
     await sharp(imagePath)
+      .rotate() // 自動根據 EXIF Orientation 旋轉圖片
       .resize(300, 300, {
         fit: "cover",
         position: "center",
@@ -104,9 +105,23 @@ router.post(
       const isImage = req.file.mimetype.startsWith("image/");
       const mediaType = isImage ? "photo" : "video";
 
-      // 為圖片生成縮略圖
+      // 修正圖片方向並生成縮略圖
       let thumbnailUrl = null;
       if (isImage) {
+        // 修正原圖的 EXIF Orientation
+        try {
+          await sharp(req.file.path)
+            .rotate() // 自動根據 EXIF Orientation 旋轉
+            .toFile(req.file.path + ".tmp");
+
+          // 替換原檔案
+          const fs = require("fs");
+          fs.renameSync(req.file.path + ".tmp", req.file.path);
+        } catch (err) {
+          error("修正圖片方向失敗:", err);
+        }
+
+        // 生成縮略圖
         thumbnailUrl = await generateThumbnail(
           req.file.path,
           req.file.filename
