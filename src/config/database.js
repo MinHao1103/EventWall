@@ -75,7 +75,14 @@ async function insertMediaFile(fileData) {
 
     try {
         const [result] = await promisePool.query(query, values);
-        return { id: result.insertId, ...fileData };
+
+        // 查詢剛插入的媒體檔案（包含 upload_time, created_at 等自動生成的欄位）
+        const [rows] = await promisePool.query(
+            'SELECT * FROM media_files WHERE id = ?',
+            [result.insertId]
+        );
+
+        return rows[0];
     } catch (err) {
         error('新增媒體檔案失敗:', err);
         throw err;
@@ -101,7 +108,14 @@ async function insertMessage(messageData) {
 
     try {
         const [result] = await promisePool.query(query, values);
-        return { id: result.insertId, ...messageData };
+
+        // 查詢剛插入的留言（包含 created_at）
+        const [rows] = await promisePool.query(
+            'SELECT * FROM messages WHERE id = ?',
+            [result.insertId]
+        );
+
+        return rows[0];
     } catch (err) {
         error('新增留言失敗:', err);
         throw err;

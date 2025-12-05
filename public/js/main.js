@@ -810,11 +810,12 @@ async function loadMessages() {
     const container = document.getElementById("messages");
     container.innerHTML = "";
 
+    // 資料庫已經是 DESC 排序（新到舊），直接按順序添加
     messages.forEach((msg) => {
-      addMessageToBoard(msg);
+      addMessageToBoard(msg, false); // false = 添加到末尾
     });
 
-    // 捲動到最新留言
+    // 捲動到最新留言（最上方）
     container.scrollTop = 0;
   } catch (error) {
     console.error("載入留言失敗:", error);
@@ -868,10 +869,10 @@ function sendMessage() {
     });
 }
 
-function addMessageToBoard(message) {
+function addMessageToBoard(message, prepend = true) {
   const container = document.getElementById("messages");
   const messageDiv = document.createElement("div");
-  messageDiv.className = "message-item slide-in-left";
+  messageDiv.className = "message-item";
 
   const userName = document.createElement("strong");
   userName.textContent = message.user_name || message.userName;
@@ -889,17 +890,23 @@ function addMessageToBoard(message) {
   messageDiv.appendChild(text);
   messageDiv.appendChild(time);
 
-  // 插入到最前面，帶動畫效果
-  container.insertBefore(messageDiv, container.firstChild);
+  if (prepend) {
+    // WebSocket 即時新增：插入到最前面，帶動畫效果
+    messageDiv.classList.add("slide-in-left");
+    container.insertBefore(messageDiv, container.firstChild);
 
-  // 動畫結束後移除動畫類
-  messageDiv.addEventListener(
-    "animationend",
-    () => {
-      messageDiv.classList.remove("slide-in-left");
-    },
-    { once: true }
-  );
+    // 動畫結束後移除動畫類
+    messageDiv.addEventListener(
+      "animationend",
+      () => {
+        messageDiv.classList.remove("slide-in-left");
+      },
+      { once: true }
+    );
+  } else {
+    // 初始載入：添加到末尾（資料庫已排序）
+    container.appendChild(messageDiv);
+  }
 }
 
 // ============================================
