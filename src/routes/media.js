@@ -98,6 +98,9 @@ router.post(
         return res.status(400).json({ error: "沒有檔案上傳" });
       }
 
+      // 記錄上傳資訊
+      info(`檔案上傳 | 使用者: ${req.user.display_name} (${req.user.email}) | 原始檔名: ${req.file.originalname}`);
+
       const isImage = req.file.mimetype.startsWith("image/");
       const mediaType = isImage ? "photo" : "video";
 
