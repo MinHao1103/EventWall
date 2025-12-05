@@ -305,9 +305,15 @@ async function loadSiteConfig() {
             const guestNameB = config.guest_name_b || '嘉賓B';
             document.getElementById('guestsName').textContent = `${guestNameA} ❤️ ${guestNameB}`;
 
-            // 更新活動日期
+            // 更新活動日期 (使用客戶端時區顯示)
             if (config.event_date) {
-                document.getElementById('eventDate').textContent = config.event_date;
+                const date = new Date(config.event_date);
+                // 使用客戶端本地時區格式化日期
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+                document.getElementById('eventDate').textContent = formattedDate;
             }
         }
     } catch (error) {
