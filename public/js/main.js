@@ -348,6 +348,19 @@ function renderGallery() {
   renderThumbnails();
 }
 
+// 判斷是否為 DNG 檔（Chrome 不支援原始顯示）
+function isDngMedia(media) {
+  const name = (media.original_name || media.file_name || "").toLowerCase();
+  const url = (media.file_url || "").toLowerCase();
+  const mime = (media.mime_type || "").toLowerCase();
+  return (
+    name.endsWith(".dng") ||
+    url.endsWith(".dng") ||
+    mime === "image/x-adobe-dng" ||
+    mime === "image/dng"
+  );
+}
+
 // 顯示指定索引的媒體
 function showMediaAt(index) {
   if (index < 0 || index >= mediaList.length) return;
@@ -359,8 +372,10 @@ function showMediaAt(index) {
   display.innerHTML = "";
 
   if (media.media_type === "photo") {
+    const isDng = isDngMedia(media);
     const img = document.createElement("img");
-    img.src = media.file_url;
+    // DNG 在瀏覽器不支援原圖，改用縮圖
+    img.src = isDng ? media.thumbnail_url || media.file_url : media.file_url;
     img.alt = media.original_name;
     display.appendChild(img);
   } else if (media.media_type === "video") {
