@@ -97,12 +97,14 @@ const server = app.listen(port, async () => {
     process.exit(1);
   }
 
-  // 檢查 Google Drive 設定
+  // 初始化並檢查 Google Drive 設定
   const googleDrive = require("./config/googleDrive");
+  await googleDrive.initialize();
+
   if (googleDrive.isGoogleDriveEnabled()) {
-    console.log("[成功] Google Drive 雲端備份已啟用");
+    console.log("\n[成功] Google Drive 雲端備份已啟用");
   } else {
-    console.log("[警告] Google Drive 雲端備份未啟用（僅本地存儲）");
+    console.log("\n[警告] Google Drive 雲端備份未啟用（僅本地存儲）");
   }
 
   console.log("\n============================================");
