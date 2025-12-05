@@ -1474,3 +1474,10 @@ html {
         font-size: 11px;
     }
 }
+
+#messageFab {
+    position: fixed;
+    bottom: 90px; /* <--- 這個值決定了按鈕距離底部的距離 */
+    right: 20px;
+    /* ... 其他樣式 ... */
+}
