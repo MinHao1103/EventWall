@@ -33,16 +33,38 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const uploader = req.body.uploader || "anonymous";
+    // 檢查使用者是否已登入
+    if (!req.user) {
+      return cb(new Error("使用者未登入"), null);
+    }
+
+    // 取得使用者資訊
+    const displayName = req.user.display_name || "訪客";
+    const userId = req.user.id;
+
+    // 生成時間戳：YYYYMMDDHHmmss
+    const now = new Date();
+    const timestamp =
+      now.getFullYear() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
+
+    // 處理原始檔名
     const ext = path.extname(file.originalname);
     const basename = path.basename(file.originalname, ext);
 
-    // 清理檔名：移除空格、括號等特殊字符，只保留字母數字、中文、底線和連字號
-    const cleanBasename = basename.replace(/[^\w\u4e00-\u9fa5-]/g, "_");
-    const cleanUploader = uploader.replace(/[^\w\u4e00-\u9fa5-]/g, "_");
+    // 清理檔名：移除不合法字元（保留中文、英文、數字、底線、連字號）
+    // Windows/macOS/Linux 不允許：< > : " / \ | ? *
+    const cleanDisplayName = displayName.replace(/[<>:"/\\|?*\s]/g, '_');
+    const cleanBasename = basename.replace(/[<>:"/\\|?*]/g, '_');
 
-    cb(null, `${timestamp}-${cleanUploader}-${cleanBasename}${ext}`);
+    // 格式：YYYYMMDDHHmmss_displayName_userId_原始檔名.副檔名
+    const filename = `${timestamp}_${cleanDisplayName}_${userId}_${cleanBasename}${ext}`;
+
+    cb(null, filename);
   },
 });
 

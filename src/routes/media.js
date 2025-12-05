@@ -48,6 +48,7 @@ async function uploadToCloud(
   wss
 ) {
   try {
+    // 使用與本地相同的檔名（已包含上傳者前綴）
     info(`開始上傳到雲端: ${filename}`);
 
     const cloudResult = await googleDrive.uploadFile(
@@ -146,7 +147,7 @@ router.post(
         uploadToCloud(
           result.id,
           req.file.path,
-          req.file.originalname, // 使用原始檔案名稱
+          req.file.filename, // 使用與本地相同的檔名（已包含上傳者前綴）
           req.file.mimetype,
           mediaType,
           wss
