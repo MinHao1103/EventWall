@@ -7,8 +7,8 @@
 }
 
 body {
-    font-family: Arial, 'Microsoft JhengHei', sans-serif;
-    background: #f5f5f5;
+    font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -17,20 +17,46 @@ body {
 /* Header 標題區 */
 #header {
     text-align: center;
-    padding: 30px 20px;
+    padding: 40px 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: headerFloat 15s ease-in-out infinite;
+}
+
+@keyframes headerFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-30px, -30px); }
 }
 
 #header h1 {
-    font-size: 32px;
-    margin-bottom: 10px;
+    font-size: 36px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 #header p {
     font-size: 18px;
-    opacity: 0.9;
+    opacity: 0.95;
+    position: relative;
+    z-index: 1;
+    font-weight: 400;
 }
 
 /* 畫廊區 Gallery */
@@ -38,11 +64,21 @@ body {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    margin: 30px auto;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(102, 126, 234, 0.1);
     overflow: visible;
+    transition: all 0.3s ease;
+}
+
+.carousel-container:hover {
+    box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
 }
 
 /* 畫廊主顯示區 */
@@ -50,12 +86,12 @@ body {
     width: 100%;
     height: 500px;
     position: relative;
-    background: #000;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px 10px 0 0;
-    overflow: visible; /* 讓彈幕可以飛出 */
+    border-radius: 20px 20px 0 0;
+    overflow: visible;
 }
 
 #gallery-display {
@@ -64,8 +100,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden; /* 圖片裁切在這層 */
-    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    position: relative;
+}
+
+#gallery-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
 }
 
 #gallery-display img,
@@ -73,13 +118,20 @@ body {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fadeInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(0.95);
+    transition: filter 0.3s;
 }
 
-@keyframes fadeIn {
+#gallery-display img:hover,
+#gallery-display video:hover {
+    filter: brightness(1);
+}
+
+@keyframes fadeInScale {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.9);
     }
     to {
         opacity: 1;
@@ -264,18 +316,25 @@ body {
 }
 
 .danmaku-input button {
-    padding: 10px 25px;
+    padding: 12px 30px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 20px;
+    border-radius: 25px;
     cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .danmaku-input button:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.danmaku-input button:active {
+    transform: translateY(0);
 }
 
 /* 留言板 */
@@ -283,24 +342,42 @@ body {
     position: absolute;
     right: 0;
     top: 0;
-    width: 320px;
+    width: 340px;
     height: 100%;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.15);
     z-index: 15;
+    border-left: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .message-board-header {
-    padding: 15px;
+    padding: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.message-board-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    animation: headerFloat 10s ease-in-out infinite;
 }
 
 .message-board-header h3 {
     font-size: 18px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
 }
 
 .messages-container {
@@ -369,18 +446,25 @@ body {
 
 .message-input button {
     width: 100%;
-    padding: 10px;
+    padding: 14px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .message-input button:hover {
-    transform: scale(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.message-input button:active {
+    transform: translateY(0);
 }
 
 /* 上傳區 */

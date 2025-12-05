@@ -180,6 +180,65 @@ async function updateMediaCloudInfo(mediaId, cloudInfo) {
     }
 }
 
+// ============================================
+// 使用者管理功能（Google OAuth）
+// ============================================
+
+// 根據 Google ID 查找或建立使用者
+async function findOrCreateUser(profile) {
+    try {
+        // 先查找使用者
+        const [rows] = await promisePool.query(
+            'SELECT * FROM users WHERE google_id = ?',
+            [profile.id]
+        );
+
+        if (rows.length > 0) {
+            // 使用者已存在，更新最後登入時間
+            await promisePool.query(
+                'UPDATE users SET last_login = NOW(), display_name = ?, profile_picture = ? WHERE google_id = ?',
+                [profile.displayName, profile.photos?.[0]?.value || null, profile.id]
+            );
+            return rows[0];
+        } else {
+            // 建立新使用者
+            const [result] = await promisePool.query(
+                'INSERT INTO users (google_id, email, display_name, profile_picture) VALUES (?, ?, ?, ?)',
+                [
+                    profile.id,
+                    profile.emails?.[0]?.value || '',
+                    profile.displayName,
+                    profile.photos?.[0]?.value || null
+                ]
+            );
+
+            // 回傳新建立的使用者資料
+            const [newUser] = await promisePool.query(
+                'SELECT * FROM users WHERE id = ?',
+                [result.insertId]
+            );
+            return newUser[0];
+        }
+    } catch (error) {
+        console.error('查找或建立使用者失敗:', error);
+        throw error;
+    }
+}
+
+// 根據 ID 查找使用者
+async function findUserById(userId) {
+    try {
+        const [rows] = await promisePool.query(
+            'SELECT * FROM users WHERE id = ?',
+            [userId]
+        );
+        return rows[0] || null;
+    } catch (error) {
+        console.error('查找使用者失敗:', error);
+        throw error;
+    }
+}
+
 // 匯出模組
 module.exports = {
     pool,
@@ -192,5 +251,7 @@ module.exports = {
     getAllMessages,
     insertDanmaku,
     getSiteConfig,
-    updateMediaCloudInfo
+    updateMediaCloudInfo,
+    findOrCreateUser,
+    findUserById
 };

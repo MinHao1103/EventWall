@@ -118,48 +118,69 @@ function debounce(func, wait) {
 // ============================================
 // 初始化
 // ============================================
-window.addEventListener('DOMContentLoaded', () => {
-    // 取得用戶姓名
-    userName = localStorage.getItem('userName');
-    if (!userName) {
-        window.location.href = 'index.html';
-        return;
+window.addEventListener('DOMContentLoaded', async () => {
+    // 檢查使用者登入狀態
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+
+        if (!data.authenticated) {
+            // 未登入，重定向到登入頁面
+            window.location.href = '/pages/index.html';
+            return;
+        }
+
+        // 已登入，取得使用者資訊
+        userName = data.user.displayName;
+
+        // 設定留言板的姓名欄位
+        document.getElementById('messageName').value = userName;
+
+        // 顯示使用者資訊（如果頁面有相關元素）
+        const userProfileElement = document.getElementById('userProfile');
+        if (userProfileElement && data.user.profilePicture) {
+            userProfileElement.innerHTML = `
+                <img src="${data.user.profilePicture}" alt="${userName}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px;">
+                <span>${userName}</span>
+            `;
+        }
+
+        // 初始化 WebSocket
+        initWebSocket();
+
+        // 載入網站設定
+        loadSiteConfig();
+
+        // 載入媒體檔案
+        loadMedia();
+
+        // 載入留言
+        loadMessages();
+
+        // 載入統計資料
+        loadStatistics();
+
+        // 設定拖放上傳
+        setupDragDrop();
+
+        // 彈幕輸入框 Enter 鍵送出
+        document.getElementById('danmakuText').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendDanmaku();
+            }
+        });
+
+        // 留言輸入框 Ctrl+Enter 送出
+        document.getElementById('messageText').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                sendMessage();
+            }
+        });
+
+    } catch (error) {
+        console.error('檢查登入狀態失敗:', error);
+        window.location.href = '/pages/index.html';
     }
-
-    // 設定留言板的姓名欄位
-    document.getElementById('messageName').value = userName;
-
-    // 初始化 WebSocket
-    initWebSocket();
-
-    // 載入網站設定
-    loadSiteConfig();
-
-    // 載入媒體檔案
-    loadMedia();
-
-    // 載入留言
-    loadMessages();
-
-    // 載入統計資料
-    loadStatistics();
-
-    // 設定拖放上傳
-    setupDragDrop();
-
-    // 彈幕輸入框 Enter 鍵送出
-    document.getElementById('danmakuText').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            sendDanmaku();
-        }
-    });
-
-    // 留言輸入框 Ctrl+Enter 送出
-    document.getElementById('messageText').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && e.ctrlKey) {
-            sendMessage();
-        }
-    });
 });
 
 // ============================================
@@ -755,9 +776,9 @@ function handleFileUpload(event) {
 }
 
 async function uploadFile(file) {
-    // 驗證檔案大小 (100MB)
-    if (file.size > 100 * 1024 * 1024) {
-        showToast('檔案過大', '檔案大小不能超過 100MB', 'error', 3000);
+    // 驗證檔案大小 (200MB)
+    if (file.size > 200 * 1024 * 1024) {
+        showToast('檔案過大', '檔案大小不能超過 200MB', 'error', 3000);
         return;
     }
 
@@ -770,7 +791,7 @@ async function uploadFile(file) {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('uploader', userName);
+    // Note: uploader name is now automatically set from authenticated user session on backend
 
     // 顯示上傳進度
     const progressContainer = document.getElementById('uploadProgress');

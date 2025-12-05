@@ -61,6 +61,19 @@ CREATE TABLE IF NOT EXISTS site_config (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 5. 建立使用者資料表，新增使用者資料表 (Google OAuth)，用於儲存 Google 登入的使用者資料
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    google_id VARCHAR(255) UNIQUE NOT NULL COMMENT 'Google 帳號 ID',
+    email VARCHAR(255) NOT NULL COMMENT 'Email',
+    display_name VARCHAR(100) NOT NULL COMMENT '顯示名稱',
+    profile_picture VARCHAR(500) DEFAULT NULL COMMENT '個人照片 URL',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_google_id (google_id),
+    INDEX idx_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 插入預設網站設定
 INSERT INTO site_config (guest_name_a, guest_name_b, event_date, site_title, welcome_message)
 VALUES ('嘉賓A', '嘉賓B', '2024-12-31', '活動互動牆', '歡迎來到我們的活動互動牆，請留下您的祝福！')

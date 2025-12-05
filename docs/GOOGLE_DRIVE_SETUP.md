@@ -2,19 +2,6 @@
 
 本指南將幫助你設定 Google Drive API，啟用雲端雙重存儲功能，使用 OAuth 2.0 授權方式將檔案上傳到您的個人 Google Drive。
 
-## 常見錯誤快速參考
-
-如果您在設定過程中遇到以下錯誤，請直接跳到對應的解決方法：
-
-| 錯誤訊息                          | 原因                         | 解決方法                                                                         |
-| --------------------------------- | ---------------------------- | -------------------------------------------------------------------------------- |
-| `redirect_uri_mismatch`           | Redirect URI 設定錯誤        | 確認 OAuth 客戶端設定中的 Redirect URI 為 `http://localhost:3000/oauth2callback` |
-| `access_denied (403)`             | Gmail 帳號不在測試使用者列表 | 在 OAuth 同意畫面中將您的 Gmail 加入「測試使用者」                               |
-| `invalid_client`                  | Client ID 或 Secret 錯誤     | 檢查 `.env` 檔案中的 `GDRIVE_CLIENT_ID` 和 `GDRIVE_CLIENT_SECRET`                |
-| `Google Drive: 未設定 OAuth 憑證` | 環境變數未設定               | 確認 `.env` 檔案中的三個變數都已填寫                                             |
-
----
-
 ## 功能說明
 
 啟用後，所有上傳的照片和影片會：
