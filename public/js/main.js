@@ -877,8 +877,19 @@ function addMessageToBoard(message, prepend = true) {
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
 
-  const userName = document.createElement("strong");
-  userName.textContent = message.user_name || message.userName;
+  // 判斷是否為當前使用者的留言
+  const messageUserName = message.user_name || message.userName;
+  const isCurrentUser = messageUserName === userName;
+
+  // 根據是否為當前使用者添加不同的 class
+  if (isCurrentUser) {
+    messageDiv.classList.add("message-own");
+  } else {
+    messageDiv.classList.add("message-other");
+  }
+
+  const userNameElement = document.createElement("strong");
+  userNameElement.textContent = messageUserName;
 
   const text = document.createElement("p");
   text.textContent = message.message_text || message.messageText;
@@ -889,20 +900,21 @@ function addMessageToBoard(message, prepend = true) {
     : "剛剛";
   time.textContent = timeStr;
 
-  messageDiv.appendChild(userName);
+  messageDiv.appendChild(userNameElement);
   messageDiv.appendChild(text);
   messageDiv.appendChild(time);
 
   if (prepend) {
     // WebSocket 即時新增：插入到最前面，帶動畫效果
-    messageDiv.classList.add("slide-in-left");
+    const animationClass = isCurrentUser ? "slide-in-right" : "slide-in-left";
+    messageDiv.classList.add(animationClass);
     container.insertBefore(messageDiv, container.firstChild);
 
     // 動畫結束後移除動畫類
     messageDiv.addEventListener(
       "animationend",
       () => {
-        messageDiv.classList.remove("slide-in-left");
+        messageDiv.classList.remove(animationClass);
       },
       { once: true }
     );
@@ -1015,12 +1027,7 @@ async function uploadFile(file) {
         setTimeout(() => {
           progressContainer.innerHTML =
             '<p style="color: #52B788; font-weight: bold;">上傳成功！</p>';
-          showToast(
-            "上傳成功",
-            file.type.startsWith("image/") ? "照片已上傳" : "影片已上傳",
-            "success",
-            2000
-          );
+          // WebSocket 會收到 newMedia 事件並顯示 toast，這裡不需要重複顯示
           setTimeout(() => {
             progressContainer.innerHTML = "";
           }, 2000);
