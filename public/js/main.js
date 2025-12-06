@@ -1122,6 +1122,121 @@ function logout() {
   }
 }
 
+// FAB 拖曳功能
+function initDraggableFAB() {
+  const fab = document.getElementById("messageFab");
+  if (!fab) return;
+
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0, startY = 0;
+  let startTime = 0;
+  let currentTransform = { x: 0, y: 0 };
+  let isInitialized = false;
+
+  // 滑鼠/觸控開始
+  function handleStart(e) {
+    // 記錄開始位置和時間
+    const touch = e.type.includes('touch') ? e.touches[0] : e;
+
+    // 第一次拖曳時，需要將 CSS 定位轉換為絕對座標
+    if (!isInitialized) {
+      const rect = fab.getBoundingClientRect();
+
+      // 移除 right 和 bottom，改用 left 和 top
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+      fab.style.left = rect.left + 'px';
+      fab.style.top = rect.top + 'px';
+
+      isInitialized = true;
+    }
+
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTime = Date.now();
+    isDragging = true;
+    hasMoved = false;
+
+    // 關閉過渡動畫以便流暢拖曳
+    fab.style.transition = 'none';
+    fab.style.cursor = 'grabbing';
+  }
+
+  // 滑鼠/觸控移動
+  function handleMove(e) {
+    if (!isDragging) return;
+
+    const touch = e.type.includes('touch') ? e.touches[0] : e;
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    // 移動超過 8px 才算拖曳
+    if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+      hasMoved = true;
+      e.preventDefault(); // 防止頁面滾動
+    }
+
+    if (hasMoved) {
+      // 獲取當前位置
+      const currentLeft = parseFloat(fab.style.left) || 0;
+      const currentTop = parseFloat(fab.style.top) || 0;
+
+      // 計算新位置
+      let newLeft = currentLeft + deltaX;
+      let newTop = currentTop + deltaY;
+
+      // 邊界限制
+      const rect = fab.getBoundingClientRect();
+      const maxLeft = window.innerWidth - rect.width - 16;
+      const maxTop = window.innerHeight - rect.height - 16;
+
+      newLeft = Math.max(16, Math.min(newLeft, maxLeft));
+      newTop = Math.max(16, Math.min(newTop, maxTop));
+
+      // 直接設置 left 和 top
+      fab.style.left = newLeft + 'px';
+      fab.style.top = newTop + 'px';
+
+      // 更新起始位置
+      startX = touch.clientX;
+      startY = touch.clientY;
+    }
+  }
+
+  // 滑鼠/觸控結束
+  function handleEnd(e) {
+    if (!isDragging) return;
+
+    isDragging = false;
+    fab.style.transition = '';
+    fab.style.cursor = 'grab';
+
+    // 如果有拖曳動作，阻止後續的點擊事件
+    if (hasMoved) {
+      // 使用 capture 階段攔截點擊事件
+      const preventClick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        fab.removeEventListener('click', preventClick, true);
+      };
+      fab.addEventListener('click', preventClick, true);
+    }
+
+    hasMoved = false;
+  }
+
+  // 綁定事件（使用 capture 階段優先處理）
+  fab.addEventListener('mousedown', handleStart, true);
+  document.addEventListener('mousemove', handleMove, true);
+  document.addEventListener('mouseup', handleEnd, true);
+
+  fab.addEventListener('touchstart', handleStart, { passive: false, capture: true });
+  document.addEventListener('touchmove', handleMove, { passive: false, capture: true });
+  document.addEventListener('touchend', handleEnd, true);
+}
+
+// 鍵盤避讓功能
 if (window.visualViewport) {
   const fab = document.getElementById("messageFab");
 
@@ -1146,3 +1261,30 @@ if (window.visualViewport) {
     });
   }
 }
+
+// 初始化 FAB 拖曳功能
+initDraggableFAB();
+
+// Textarea 自適應高度
+function autoResizeTextarea() {
+  const textarea = document.getElementById("messageText");
+  if (!textarea) return;
+
+  function adjustHeight() {
+    // 重置高度以獲取正確的 scrollHeight
+    textarea.style.height = 'auto';
+
+    // 設置新高度（但不超過最大高度）
+    const newHeight = Math.min(textarea.scrollHeight, 200);
+    textarea.style.height = newHeight + 'px';
+  }
+
+  // 監聽輸入事件
+  textarea.addEventListener('input', adjustHeight);
+
+  // 初始調整
+  adjustHeight();
+}
+
+// 初始化 Textarea 自適應高度
+autoResizeTextarea();

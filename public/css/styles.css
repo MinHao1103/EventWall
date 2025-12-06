@@ -4,14 +4,20 @@
    CSS 變數系統
    ========================================== */
 :root {
-    /* 主色調 */
+    /* 主色調 - 更豐富的色彩漸變 */
+    --primary-400: #7c93f5;
     --primary-500: #667eea;
     --primary-600: #5a67d8;
     --primary-700: #4c51bf;
+    --primary-800: #3d42a0;
+    --secondary-400: #8b60c0;
     --secondary-500: #764ba2;
     --secondary-600: #6b3fa0;
+    --secondary-700: #5a348a;
     --accent-pink: #f093fb;
     --accent-cyan: #4facfe;
+    --accent-purple: #a78bfa;
+    --accent-indigo: #818cf8;
 
     /* 中性色 */
     --neutral-50: #f9fafb;
@@ -31,19 +37,30 @@
     --error: #ef4444;
     --info: #3b82f6;
 
-    /* 漸層 */
+    /* 漸層 - 增強視覺層次 */
     --gradient-primary: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+    --gradient-primary-hover: linear-gradient(135deg, var(--primary-400) 0%, var(--secondary-400) 100%);
     --gradient-vibrant: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+    --gradient-vibrant-alt: linear-gradient(120deg, #667eea 0%, #a78bfa 50%, #f093fb 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%);
+    --gradient-glass-hover: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 100%);
     --gradient-subtle: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+    --gradient-subtle-warm: linear-gradient(135deg, #fef3f9 0%, #f0e9ff 100%);
+    --gradient-text: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+    --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(249,250,255,0.95));
+    --gradient-shine: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
 
-    /* 陰影系統 */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 30px 90px rgba(0, 0, 0, 0.3);
+    /* 陰影系統 - 多層次陰影 */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12), 0 20px 60px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15), 0 30px 90px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 70px rgba(0, 0, 0, 0.18), 0 40px 120px rgba(0, 0, 0, 0.12);
     --shadow-glow: 0 0 20px rgba(102, 126, 234, 0.4);
+    --shadow-glow-strong: 0 0 30px rgba(102, 126, 234, 0.5), 0 0 60px rgba(118, 75, 162, 0.3);
+    --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-colored: 0 10px 40px rgba(102, 126, 234, 0.25);
 
     /* 模糊效果 */
     --blur-sm: blur(8px);
@@ -87,11 +104,16 @@
 
 body {
     font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
-    background: var(--gradient-subtle);
+    background:
+        radial-gradient(ellipse at 10% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(240, 147, 251, 0.1) 0%, transparent 60%),
+        linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 50%, #fef3f9 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     position: relative;
+    overflow-x: hidden;
 }
 
 body::before {
@@ -99,16 +121,47 @@ body::before {
     position: fixed;
     inset: 0;
     background-image:
-        radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
-    animation: backgroundFloat 20s ease-in-out infinite;
+        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 75% 60%, rgba(118, 75, 162, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(240, 147, 251, 0.1) 0%, transparent 40%);
+    animation: backgroundFloat 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+    background-size: 60px 60px, 100px 100px;
+    background-position: 0 0, 30px 30px;
+    animation: particleFloat 40s linear infinite;
+    opacity: 0.4;
     pointer-events: none;
     z-index: 0;
 }
 
 @keyframes backgroundFloat {
-    0%, 100% { opacity: 0.6; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1) rotate(0deg);
+    }
+    33% {
+        opacity: 1;
+        transform: scale(1.15) rotate(2deg);
+    }
+    66% {
+        opacity: 0.8;
+        transform: scale(1.05) rotate(-2deg);
+    }
+}
+
+@keyframes particleFloat {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(-120px) rotate(360deg); }
 }
 
 /* 抽屜開啟時鎖定背景卷動 */
@@ -117,18 +170,25 @@ body::before {
     touch-action: none;
 }
 
-/* Header 標題區 */
+/* Header 標題區 - 增強視覺 */
 #header {
     text-align: center;
-    padding: 40px 20px;
-    background: var(--gradient-primary);
+    padding: 50px 24px;
+    background:
+        linear-gradient(135deg,
+            rgba(102, 126, 234, 0.95) 0%,
+            rgba(118, 75, 162, 0.95) 50%,
+            rgba(129, 140, 248, 0.95) 100%);
     color: white;
     box-shadow:
-        var(--shadow-md),
-        0 0 40px rgba(102, 126, 234, 0.3);
+        var(--shadow-xl),
+        0 0 60px rgba(102, 126, 234, 0.4),
+        0 10px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
     z-index: 10;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 #header::before {
@@ -138,36 +198,88 @@ body::before {
     right: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    animation: headerFloat 15s ease-in-out infinite;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(240, 147, 251, 0.15) 0%, transparent 50%);
+    animation: headerFloat 20s ease-in-out infinite;
+    pointer-events: none;
+}
+
+#header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(255, 255, 255, 0.15) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
 }
 
 @keyframes headerFloat {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-30px, -30px); }
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+    }
+    33% {
+        transform: translate(-40px, -30px) scale(1.1);
+        opacity: 1;
+    }
+    66% {
+        transform: translate(30px, -20px) scale(1.05);
+        opacity: 0.9;
+    }
 }
 
 #header h1 {
-    font-size: 42px;
-    margin-bottom: 12px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
+    font-size: 48px;
+    margin-bottom: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
     position: relative;
     z-index: 1;
     text-shadow:
-        0 2px 10px rgba(0, 0, 0, 0.3),
-        0 4px 20px rgba(0, 0, 0, 0.2);
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1),
+        0 1px 0 rgba(255, 255, 255, 0.3);
     line-height: 1.2;
+    animation: titleGlow 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes titleGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+    }
 }
 
 #header p {
-    font-size: 20px;
-    opacity: 0.95;
+    font-size: 21px;
+    opacity: 0.98;
     position: relative;
     z-index: 1;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.25),
+        0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 0.98;
+        transform: translateY(0);
+    }
 }
 
 /* Header 內容佈局 */
@@ -192,50 +304,113 @@ body::before {
     gap: 15px;
 }
 
-/* 使用者資料顯示 */
+/* 使用者資料顯示 - 增強設計 */
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 25px;
+    gap: 12px;
+    padding: 10px 18px;
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.15) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 28px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-profile:hover {
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.35) 0%,
+            rgba(255, 255, 255, 0.25) 100%);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
 }
 
 .user-profile img {
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
-/* 登出按鈕 */
+.user-profile:hover img {
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+/* 登出按鈕 - 增強設計 */
 .logout-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    gap: 10px;
+    padding: 11px 22px;
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.15) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
+    border-radius: 28px;
     color: white;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.35) 0%,
+            rgba(255, 255, 255, 0.25) 100%);
     border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.logout-btn:hover::before {
+    opacity: 1;
 }
 
 .logout-btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px) scale(1);
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .logout-icon {
@@ -252,25 +427,30 @@ body::before {
     width: 100%;
     max-width: 1200px;
     margin: 40px auto;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--gradient-glass);
     backdrop-filter: var(--blur-lg) saturate(180%);
     -webkit-backdrop-filter: var(--blur-lg) saturate(180%);
     border-radius: var(--radius-2xl);
     box-shadow:
-        var(--shadow-lg),
-        0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-        0 0 40px rgba(102, 126, 234, 0.15);
+        var(--shadow-xl),
+        0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+        0 0 60px rgba(102, 126, 234, 0.2),
+        0 1px 0 rgba(255, 255, 255, 0.8) inset;
     overflow: visible;
     transition: var(--transition-smooth);
     z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .carousel-container:hover {
+    background: var(--gradient-glass-hover);
     box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.18),
-        0 0 0 1px rgba(255, 255, 255, 0.6) inset,
-        var(--shadow-glow);
-    transform: translateY(-4px) scale(1.005);
+        var(--shadow-2xl),
+        0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+        var(--shadow-glow-strong),
+        0 2px 0 rgba(255, 255, 255, 0.9) inset;
+    transform: translateY(-6px) scale(1.008);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* 畫廊主顯示區 */
@@ -278,12 +458,22 @@ body::before {
     width: 100%;
     height: 500px;
     position: relative;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px 20px 0 0;
-    overflow: visible;
+    border-radius: 28px 28px 0 0;
+    overflow: hidden;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+#gallery-main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 28px 28px 0 0;
+    background: transparent;
+    pointer-events: none;
 }
 
 #gallery-display {
@@ -292,9 +482,9 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 20px 20px 0 0;
+    overflow: visible;
     position: relative;
+    padding: 20px;
 }
 
 #gallery-display::before {
@@ -309,62 +499,119 @@ body::before {
 #gallery-display video {
     max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
-    animation: fadeInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: brightness(0.95);
-    transition: filter 0.3s;
+    animation: fadeInScale 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(0.98) contrast(1.02);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 #gallery-display img:hover,
 #gallery-display video:hover {
-    filter: brightness(1);
+    filter: brightness(1) contrast(1.05);
+    transform: scale(1.01);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
 }
 
 @keyframes fadeInScale {
-    from {
+    0% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.9) translateY(15px);
+        filter: blur(8px);
     }
-    to {
+    60% {
+        opacity: 0.8;
+        transform: scale(1.01) translateY(-3px);
+        filter: blur(0px);
+    }
+    100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
+        filter: blur(0px);
     }
 }
 
 .gallery-placeholder {
     text-align: center;
-    color: #999;
+    color: #b0b0b0;
+    animation: placeholderPulse 3s ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
 }
 
 .gallery-placeholder-icon {
-    font-size: 80px;
+    font-size: 96px;
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 8px 24px rgba(102, 126, 234, 0.3));
+    animation: iconFloat 4s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-15px) rotate(-5deg);
+    }
+    75% {
+        transform: translateY(-10px) rotate(5deg);
+    }
 }
 
 .gallery-placeholder p {
-    color: #ccc;
-    font-size: 18px;
+    color: #d0d0d0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* 導航箭頭 */
+/* 導航箭頭 - 現代化設計 */
 .gallery-nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     color: white;
-    font-size: 32px;
-    padding: 20px 15px;
+    font-size: 28px;
+    padding: 18px 14px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
-    border-radius: 5px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
 }
 
 .gallery-nav:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(102, 126, 234, 0.4);
+    opacity: 1;
+}
+
+.gallery-nav:active {
+    transform: translateY(-50%) scale(1.05);
 }
 
 .gallery-nav-left {
@@ -375,45 +622,87 @@ body::before {
     right: 10px;
 }
 
-/* 照片資訊 */
+/* 照片資訊 - 增強設計 */
 .gallery-info {
     position: absolute;
-    bottom: 10px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.65));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
     display: none;
-    gap: 15px;
+    gap: 16px;
     z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
 }
 
 .gallery-info.show {
     display: flex;
+    animation: slideUpFadeIn 0.4s ease-out;
 }
 
-/* 縮圖導航列 */
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* 縮圖導航列 - 精緻化 */
 #gallery-thumbnails {
     width: 100%;
-    height: 100px;
-    background: #f5f5f5;
+    height: 106px;
+    background: linear-gradient(180deg, #fafbfc 0%, #f5f6f8 100%);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
-    gap: 10px;
-    padding: 10px;
+    gap: 12px;
+    padding: 13px 16px;
     overflow-x: auto;
     overflow-y: hidden;
+    position: relative;
+}
+
+#gallery-thumbnails::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    pointer-events: none;
 }
 
 #gallery-thumbnails::-webkit-scrollbar {
-    height: 6px;
+    height: 8px;
+}
+
+#gallery-thumbnails::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
 }
 
 #gallery-thumbnails::-webkit-scrollbar-thumb {
-    background: #667eea;
-    border-radius: 3px;
+    background: linear-gradient(135deg, var(--primary-500), var(--secondary-500));
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+#gallery-thumbnails::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
 }
 
 .thumbnail-item {
@@ -422,20 +711,47 @@ body::before {
     height: 80px;
     cursor: pointer;
     border: 3px solid transparent;
-    border-radius: 5px;
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s;
-    background: #ddd;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #e8e9ed, #d5d7db);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.thumbnail-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .thumbnail-item:hover {
-    transform: scale(1.1);
-    border-color: #764ba2;
+    transform: translateY(-6px) scale(1.08);
+    border-color: var(--secondary-400);
+    box-shadow:
+        0 8px 20px rgba(118, 75, 162, 0.3),
+        0 0 20px rgba(118, 75, 162, 0.2);
+}
+
+.thumbnail-item:hover::before {
+    opacity: 1;
 }
 
 .thumbnail-item.active {
-    border-color: #667eea;
-    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+    border-color: var(--primary-500);
+    box-shadow:
+        0 6px 16px rgba(102, 126, 234, 0.4),
+        0 0 24px rgba(102, 126, 234, 0.3);
+    transform: scale(1.05);
+}
+
+.thumbnail-item.active::before {
+    opacity: 1;
+    border-color: rgba(255, 255, 255, 0.8);
 }
 
 .thumbnail-item img,
@@ -470,90 +786,176 @@ body::before {
 .danmaku-item {
     position: absolute;
     white-space: nowrap;
-    font-weight: bold;
-    font-size: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-weight: 800;
+    font-size: 22px;
+    text-shadow:
+        2px 2px 6px rgba(0, 0, 0, 0.9),
+        0 0 10px rgba(0, 0, 0, 0.6),
+        1px 1px 0 rgba(255, 255, 255, 0.3);
     z-index: 11;
-    /* 使用 JavaScript transition 代替 CSS animation */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+    animation: danmakuGlow 2s ease-in-out infinite;
+    letter-spacing: 1px;
 }
 
-/* 彈幕輸入區 */
+@keyframes danmakuGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.7));
+    }
+}
+
+/* 彈幕輸入區 - 精緻化設計 */
 .danmaku-input {
     position: absolute;
-    bottom: 20px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     z-index: 20;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 10px;
-    border-radius: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 255, 0.98));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 12px 16px;
+    border-radius: 28px;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .danmaku-input input {
-    padding: 10px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 20px;
+    padding: 11px 18px;
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    background: white;
+    border-radius: 22px;
     font-size: 14px;
-    width: 250px;
+    width: 260px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.danmaku-input input::placeholder {
+    color: #a0a0a0;
+    font-weight: 400;
 }
 
 .danmaku-input input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary-500);
+    background: white;
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.05),
+        0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
 }
 
 .danmaku-input button {
-    padding: 12px 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 11px 28px;
+    background: var(--gradient-primary);
     color: white;
     border: none;
-    border-radius: 25px;
+    border-radius: 22px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 12px rgba(102, 126, 234, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.danmaku-input button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-shine);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
 }
 
 .danmaku-input button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: var(--gradient-primary-hover);
+    transform: translateY(-3px);
+    box-shadow:
+        0 6px 20px rgba(102, 126, 234, 0.45),
+        0 0 20px rgba(102, 126, 234, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.danmaku-input button:hover::before {
+    transform: translateX(100%);
 }
 
 .danmaku-input button:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow:
+        0 3px 12px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* 留言板 */
+/* 留言板抽屜覆蓋層 */
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 24;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 留言板 - 抽屜式設計（所有裝置） */
 .message-board {
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
-    margin: 20px auto 0;
-    min-height: 320px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 560px;
+    max-width: 90vw;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: var(--blur-lg) saturate(180%);
     -webkit-backdrop-filter: var(--blur-lg) saturate(180%);
     display: flex;
     flex-direction: column;
     box-shadow:
-        var(--shadow-lg),
+        -8px 0 32px rgba(0, 0, 0, 0.15),
         0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-        0 0 30px rgba(102, 126, 234, 0.2);
+        -4px 0 24px rgba(102, 126, 234, 0.15);
     border: none;
-    border-radius: var(--radius-xl);
+    border-left: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 0;
     padding: 0;
-    transition: var(--transition-smooth);
-    transform: translateY(0);
-    opacity: 1;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 25;
     touch-action: pan-y;
     overscroll-behavior: contain;
+}
+
+.message-board.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .message-board-header {
@@ -592,35 +994,71 @@ body::before {
     flex: 1;
     overflow-y: auto;
     padding: 15px;
-    max-height: 360px;
+    max-height: none;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
     overscroll-behavior: contain;
 }
 
 .message-item {
-    margin-bottom: 15px;
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    border-left: 3px solid #667eea;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #fafbfd 0%, #f8f9fb 100%);
+    border-radius: 14px;
+    border-left: 4px solid transparent;
+    border-image: var(--gradient-primary) 1;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.message-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gradient-primary);
+    border-radius: 14px 0 0 14px;
+}
+
+.message-item:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfd 100%);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: translateX(4px);
 }
 
 .message-item strong {
-    color: #764ba2;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.2px;
 }
 
 .message-item p {
-    color: #333;
-    line-height: 1.5;
-    margin-bottom: 5px;
+    color: #2d3748;
+    line-height: 1.65;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
 }
 
 .message-item small {
-    color: #999;
-    font-size: 11px;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 
 .message-input {
@@ -632,33 +1070,76 @@ body::before {
 
 .message-fab {
     position: fixed;
-    right: 18px;
-    bottom: 22px;
-    width: 54px;
-    height: 54px;
+    right: 20px;
+    bottom: 24px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     border: none;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
-    font-size: 22px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
+    font-size: 24px;
+    box-shadow:
+        0 8px 24px rgba(102, 126, 234, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    cursor: grab;
     z-index: 60;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     padding-bottom: 2px;
     pointer-events: auto;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.message-fab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.message-fab::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: var(--gradient-primary-hover);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
 }
 
 .message-fab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+    transform: translateY(-4px) scale(1.08);
+    box-shadow:
+        0 12px 32px rgba(102, 126, 234, 0.5),
+        0 6px 16px rgba(0, 0, 0, 0.2),
+        0 0 30px rgba(102, 126, 234, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+.message-fab:hover::before {
+    opacity: 1;
+}
+
+.message-fab:hover::after {
+    opacity: 1;
 }
 
 .message-fab:active {
-    transform: translateY(0);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow:
+        0 6px 20px rgba(102, 126, 234, 0.45),
+        0 3px 10px rgba(0, 0, 0, 0.18),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
 }
 
 .drawer-overlay {
@@ -693,14 +1174,18 @@ body::before {
 
 .message-input textarea {
     width: 100%;
-    height: 70px;
+    min-height: 70px;
+    max-height: 200px;
     padding: 8px;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     margin-bottom: 8px;
-    resize: none;
+    resize: vertical;
     font-family: inherit;
     font-size: 14px;
+    line-height: 1.5;
+    overflow-y: auto;
+    transition: height 0.2s ease;
 }
 
 .message-input input:focus,
@@ -732,36 +1217,76 @@ body::before {
     transform: translateY(0);
 }
 
-/* 上傳區 */
+/* 上傳區 - 提升視覺吸引力 */
 .upload-section {
-    max-width: 620px;
-    margin: 20px auto;
-    padding: 16px;
+    max-width: 640px;
+    margin: 32px auto;
+    padding: 20px;
     text-align: center;
 }
 
 .upload-section h2 {
-    color: #333;
-    margin-bottom: 20px;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 24px;
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: 0.5px;
 }
 
 .drop-zone {
-    border: 3px dashed #ccc;
-    border-radius: 10px;
-    padding: 34px 16px;
+    border: 3px dashed rgba(102, 126, 234, 0.3);
+    border-radius: 20px;
+    padding: 40px 24px;
     cursor: pointer;
-    transition: all 0.3s;
-    background: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfd 100%);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(118, 75, 162, 0.05) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .drop-zone:hover {
-    border-color: #667eea;
-    background: #f9f9ff;
+    border-color: var(--primary-500);
+    background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+    box-shadow:
+        0 8px 24px rgba(102, 126, 234, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: translateY(-4px);
+}
+
+.drop-zone:hover::before {
+    opacity: 1;
 }
 
 .drop-zone.dragover {
-    border-color: #764ba2;
-    background: #f0f0ff;
+    border-color: var(--secondary-500);
+    border-style: solid;
+    background: linear-gradient(135deg, #f5f7ff 0%, #f0f0ff 100%);
+    box-shadow:
+        0 12px 32px rgba(102, 126, 234, 0.25),
+        0 0 40px rgba(118, 75, 162, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: scale(1.02);
+}
+
+.drop-zone.dragover::before {
+    opacity: 1;
 }
 
 .drop-zone-content {
@@ -769,20 +1294,46 @@ body::before {
 }
 
 .upload-icon {
-    font-size: 42px;
+    font-size: 52px;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.2));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drop-zone:hover .upload-icon {
+    transform: translateY(-8px) scale(1.1);
+    filter: drop-shadow(0 8px 20px rgba(102, 126, 234, 0.35));
+}
+
+.drop-zone.dragover .upload-icon {
+    transform: scale(1.2) rotate(10deg);
+    filter: drop-shadow(0 12px 28px rgba(118, 75, 162, 0.45));
 }
 
 .drop-zone p {
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover p {
+    color: var(--primary-700);
 }
 
 .drop-zone small {
-    color: #999;
-    font-size: 12px;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover small {
+    color: var(--primary-600);
 }
 
 .upload-progress {
@@ -791,47 +1342,108 @@ body::before {
 }
 
 .progress-bar {
-    background: #e0e0e0;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #e8e9ed 0%, #d5d7db 100%);
+    border-radius: 16px;
     overflow: hidden;
-    height: 30px;
+    height: 36px;
     position: relative;
+    box-shadow:
+        inset 0 2px 6px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s;
+    background:
+        linear-gradient(135deg,
+            var(--primary-500) 0%,
+            var(--secondary-500) 50%,
+            var(--primary-600) 100%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: bold;
+    font-weight: 700;
     font-size: 14px;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-/* Footer 統計區 */
+.progress-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    animation: progressShine 1.5s infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+/* Footer 統計區 - 增強視覺 */
 #footer {
-    background: rgba(51, 51, 51, 0.95);
+    background: linear-gradient(135deg, rgba(45, 48, 66, 0.98) 0%, rgba(30, 32, 48, 0.98) 100%);
     backdrop-filter: var(--blur-lg) saturate(150%);
     -webkit-backdrop-filter: var(--blur-lg) saturate(150%);
     color: white;
-    padding: 30px 20px;
+    padding: 40px 24px;
     text-align: center;
     margin-top: auto;
     box-shadow:
-        0 -10px 30px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        0 -12px 40px rgba(0, 0, 0, 0.15),
+        0 -1px 0 rgba(255, 255, 255, 0.1) inset,
+        0 1px 0 rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
+    border-top: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 #footer::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    background:
+        linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%),
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
     pointer-events: none;
+    animation: footerGlow 8s ease-in-out infinite;
+}
+
+@keyframes footerGlow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
 }
 
 .stats {
@@ -848,43 +1460,87 @@ body::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    transition: var(--transition-smooth);
+    gap: 8px;
+    padding: 16px 24px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .stat-item:hover {
-    transform: translateY(-4px) scale(1.05);
+    transform: translateY(-6px) scale(1.08);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(102, 126, 234, 0.3);
+}
+
+.stat-item:hover::before {
+    opacity: 1;
 }
 
 .stat-icon {
-    font-size: 30px;
-    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
-    transition: var(--transition-smooth);
+    font-size: 36px;
+    filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.4));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
 }
 
 .stat-item:hover .stat-icon {
-    transform: scale(1.2) rotate(5deg);
-    filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.5));
+    transform: scale(1.25) rotate(8deg);
+    filter: drop-shadow(0 6px 20px rgba(102, 126, 234, 0.6));
 }
 
 .stat-label {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 500;
-    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-label {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #a8b5ff;
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #b8c5ff 0%, #c4cdff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-    transition: var(--transition-smooth);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
 }
 
 .stat-item:hover .stat-value {
-    color: #c4cdff;
-    text-shadow: 0 2px 12px rgba(102, 126, 234, 0.6);
+    background: linear-gradient(135deg, #d4daff 0%, #e8ebff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 12px rgba(168, 181, 255, 0.6));
 }
 
 .export-btn {
@@ -1047,7 +1703,7 @@ body {
         height: 70px;
     }
 
-    /* 留言板改為下方區塊 */
+    /* 留言板改為下方區塊（手機版從底部滑出） */
     .message-board {
         position: fixed;
         left: 0;
@@ -1055,15 +1711,22 @@ body {
         width: 100%;
         right: auto;
         top: auto;
-        height: 38vh;
-        max-height: 42vh;
+        height: 85vh;
+        max-height: 90vh;
         box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.18);
         border-top: 2px solid #667eea;
         border-left: none;
         z-index: 30;
         padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
         margin: 0;
-        border-radius: 12px 12px 0 0;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .message-board.open {
+        transform: translateY(0);
+        opacity: 1;
     }
 
     .messages-container {
@@ -1144,35 +1807,6 @@ body {
     /* 留言抽屜：預設收起，FAB 開啟；縮減底部留白 */
     body {
         padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .message-board {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        right: auto;
-        top: auto;
-        height: 70vh;
-        max-height: 78vh;
-        box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.18);
-        border-top: 2px solid #667eea;
-        border-left: none;
-        z-index: 30;
-        padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
-        margin: 0;
-        border-radius: 16px 16px 0 0;
-        transform: translateY(100%);
-        opacity: 0;
-        pointer-events: none;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-    }
-
-    .message-board.open {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: auto;
     }
 
     .messages-container {
